@@ -1,6 +1,7 @@
 package Control;
 import java.awt.Robot;
 
+import Blocks.Block;
 import processing.core.PApplet;
 
 public class Main extends PApplet {

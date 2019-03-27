@@ -1,5 +1,7 @@
 package Control;
 
+import Blocks.Block;
+
 public class World {
 
 	// Stores block data

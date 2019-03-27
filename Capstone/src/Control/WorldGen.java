@@ -1,5 +1,9 @@
 package Control;
 
+import Blocks.Air;
+import Blocks.Rock;
+import Blocks.StarRock;
+
 public class WorldGen extends Thread {
 	
 	World world;

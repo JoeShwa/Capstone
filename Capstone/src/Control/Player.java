@@ -1,4 +1,5 @@
 package Control;
+import Blocks.Block;
 import processing.core.PApplet;
 
 public class Player {
