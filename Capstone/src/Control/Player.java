@@ -1,5 +1,7 @@
 package Control;
+
 import Blocks.Block;
+import Items.Rock;
 import processing.core.PApplet;
 
 public class Player {
@@ -18,6 +20,7 @@ public class Player {
 	PApplet p;
 	World world;
 	GUI gui;
+	Inventory inventory;
 	boolean[] input;
 	static final int REACH = 4;
 	static final double SCAN_STEP = 0.1;
@@ -29,7 +32,6 @@ public class Player {
 		return n1 % n2;
 	}
 
-	@SuppressWarnings("static-access")
 	public Player(PApplet p, World world, GUI gui, boolean[] input) {
 		yaw = 0;
 		pitch = 0;
@@ -59,41 +61,50 @@ public class Player {
 				z += world.sizeZ();
 			z %= world.sizeZ();
 		}
+		inventory = new Inventory(50);
+		inventory.addItem(new Rock());
 	}
 
 	public void leftClick() {
 		// Scans to see which block the player is looking at
-		double rx = x;
-		double ry = y;
-		double rz = z;
-		double rxv = Math.cos(yaw) * Math.cos(pitch) * SCAN_STEP;
-		double ryv = Math.sin(pitch) * SCAN_STEP;
-		double rzv = Math.sin(yaw) * Math.cos(pitch) * SCAN_STEP;
-		double dist = 0;
-		boolean hitBlock = false;
-		while (dist < REACH) {
-			dist += SCAN_STEP;
-			rx += rxv;
-			ry += ryv;
-			rz += rzv;
-			if (world.getBlock((int) rx, (int) ry, (int) rz).isBreakable()) {
-				hitBlock = true;
-				dist = REACH;
+		switch (gui.guiState) {
+		case GUI.GAME:
+			double rx = x;
+			double ry = y;
+			double rz = z;
+			double rxv = Math.cos(yaw) * Math.cos(pitch) * SCAN_STEP;
+			double ryv = Math.sin(pitch) * SCAN_STEP;
+			double rzv = Math.sin(yaw) * Math.cos(pitch) * SCAN_STEP;
+			double dist = 0;
+			boolean hitBlock = false;
+			while (dist < REACH) {
+				dist += SCAN_STEP;
+				rx += rxv;
+				ry += ryv;
+				rz += rzv;
+				if (world.getBlock((int) rx, (int) ry, (int) rz).isBreakable()) {
+					hitBlock = true;
+					dist = REACH;
+				}
 			}
+			// Breaks the selected block
+			if (hitBlock) {
+				inventory.addItem(world.getBlock((int) rx, (int) ry, (int) rz).getItem());
+				world.getBlock((int) rx, (int) ry, (int) rz).breakEvent((int) rx, (int) ry, (int) rz);
+			}
+			break;
 		}
-		// Breaks the selected block
-		if (hitBlock) {
-			world.getBlock((int) rx, (int) ry, (int) rz).breakEvent((int) rx, (int) ry, (int) rz);
-		}
-		// Makes cursor pulse
+		// Do gui's left click
 		gui.leftClick();
 	}
 
 	public void move(Main m) {
 		// Does mouse movement
-		yawV += Math.toRadians(m.mouseX - m.width / 2) / 3;
-		pitchV += Math.toRadians(m.mouseY - m.height / 2) / 3;
-		m.r.mouseMove(m.width / 2, m.height / 2);
+		if (gui.guiState == GUI.GAME) {
+			yawV += Math.toRadians(m.mouseX - m.width / 2) / 3;
+			pitchV += Math.toRadians(m.mouseY - m.height / 2) / 3;
+			m.r.mouseMove(m.width / 2, m.height / 2);
+		}
 		// Moves player
 		x += xv;
 		y += yv;
@@ -140,59 +151,61 @@ public class Player {
 		pitchV *= 0.3;
 		double buttons = 0;
 		// Movement from player input
-		if (m.input['w']) {
-			buttons++;
+		if (gui.guiState == GUI.GAME) {
+			if (m.input['w']) {
+				buttons++;
+			}
+			if (m.input['a']) {
+				buttons++;
+			}
+			if (m.input['s']) {
+				buttons++;
+			}
+			if (m.input['d']) {
+				buttons++;
+			}
+			if (m.input['q']) {
+				buttons++;
+			}
+			if (m.input['e']) {
+				buttons++;
+			}
+			double speed = 0.08f / Math.sqrt(buttons);
+			if (pitch > Math.toRadians(89)) {
+				pitch = Math.toRadians(89);
+			}
+			if (pitch < Math.toRadians(-89)) {
+				pitch = Math.toRadians(-89);
+			}
+			double xvc = 0;
+			double yvc = 0;
+			double zvc = 0;
+			if (m.input['w']) {
+				xvc += speed * Math.cos(yaw);
+				zvc += speed * Math.sin(yaw);
+			}
+			if (m.input['s']) {
+				xvc -= speed * Math.cos(yaw);
+				zvc -= speed * Math.sin(yaw);
+			}
+			if (m.input['a']) {
+				xvc -= speed * Math.cos(yaw + Math.toRadians(90));
+				zvc -= speed * Math.sin(yaw + Math.toRadians(90));
+			}
+			if (m.input['d']) {
+				xvc += speed * Math.cos(yaw + Math.toRadians(90));
+				zvc += speed * Math.sin(yaw + Math.toRadians(90));
+			}
+			if (m.input['q']) {
+				yvc += speed;
+			}
+			if (m.input['e']) {
+				yvc -= speed;
+			}
+			xv += xvc;
+			yv += yvc;
+			zv += zvc;
 		}
-		if (m.input['a']) {
-			buttons++;
-		}
-		if (m.input['s']) {
-			buttons++;
-		}
-		if (m.input['d']) {
-			buttons++;
-		}
-		if (m.input['q']) {
-			buttons++;
-		}
-		if (m.input['e']) {
-			buttons++;
-		}
-		double speed = 0.08f / Math.sqrt(buttons);
-		if (pitch > Math.toRadians(89)) {
-			pitch = Math.toRadians(89);
-		}
-		if (pitch < Math.toRadians(-89)) {
-			pitch = Math.toRadians(-89);
-		}
-		double xvc = 0;
-		double yvc = 0;
-		double zvc = 0;
-		if (m.input['w']) {
-			xvc += speed * Math.cos(yaw);
-			zvc += speed * Math.sin(yaw);
-		}
-		if (m.input['s']) {
-			xvc -= speed * Math.cos(yaw);
-			zvc -= speed * Math.sin(yaw);
-		}
-		if (m.input['a']) {
-			xvc -= speed * Math.cos(yaw + Math.toRadians(90));
-			zvc -= speed * Math.sin(yaw + Math.toRadians(90));
-		}
-		if (m.input['d']) {
-			xvc += speed * Math.cos(yaw + Math.toRadians(90));
-			zvc += speed * Math.sin(yaw + Math.toRadians(90));
-		}
-		if (m.input['q']) {
-			yvc += speed;
-		}
-		if (m.input['e']) {
-			yvc -= speed;
-		}
-		xv += xvc;
-		yv += yvc;
-		zv += zvc;
 		x = mod(x, world.sizeX());
 		y = mod(y, world.sizeY());
 		z = mod(z, world.sizeZ());

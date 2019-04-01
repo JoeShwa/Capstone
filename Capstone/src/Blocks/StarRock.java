@@ -1,13 +1,18 @@
 package Blocks;
 
+import Items.Item;
 import processing.core.PImage;
 
 public class StarRock extends LightBlock {
 
-	static PImage tex = p.loadImage("starrock.png");
+	static PImage tex = p.loadImage("textures/starrock.png");
 
 	public int getBrightness() {
 		return 4;
+	}
+	
+	public Item getItem() {
+		return new Items.StarRock();
 	}
 
 	public void draw(int x, int y, int z) {

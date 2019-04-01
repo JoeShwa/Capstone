@@ -1,7 +1,9 @@
 package Control;
+
 import java.awt.Robot;
 
 import Blocks.Block;
+import Items.Item;
 import processing.core.PApplet;
 
 public class Main extends PApplet {
@@ -25,9 +27,9 @@ public class Main extends PApplet {
 	boolean[] input;
 	WorldGen gen;
 	static int[][] dirs = { { 0, 0, -1 }, { 0, 0, 1 }, { 1, 0, 0 }, { -1, 0, 0 }, { 0, -1, 0 }, { 0, 1, 0 } };
-
+	boolean mouseVisible = true;
+	
 	public void setup() {
-		noCursor();
 		try {
 			r = new Robot();
 		} catch (Exception e) {
@@ -38,49 +40,61 @@ public class Main extends PApplet {
 		input = new boolean[256];
 		// Prepares the static block class for loading textures
 		Block.prepBlocks(this, world);
+		Item.prepItems(this);
 		gen.start();
 	}
 
 	public void draw() {
-		if(gen.phase < 4) {
+		if (gen.phase < 4) {
 			loadScreen();
 		} else {
-			if(player == null) {
-				player = new Player(this, world, new GUI(player, this), input);
+			if (player == null) {
+				player = new Player(this, world, new GUI(this), input);
 				gui = player.gui;
+				gui.player = player;
 			}
 			runGame();
 		}
 	}
-	
+
 	public void loadScreen() {
 		background(0);
 		fill(255);
 		textSize(128);
 		textAlign(CENTER, CENTER);
-		text("Loading... " + gen.phase + " / 4" , width / 2, height / 2 - 100);
+		text("Loading... " + gen.phase + " / 4", width / 2, height / 2 - 100);
 		fill(50, 200, 50);
 		rect(0, height / 2, gen.phase * width / 4, 100);
-		
+
 	}
-	
+
 	public void runGame() {
 		noStroke();
 		// System.out.println(frameRate);
 		player.move(this);
-		pushMatrix();
-		doCamera(player.getX(), player.getY(), player.getZ(), player.getYaw(), player.getPitch());
-		// Fixes clipping
-		perspective(PI / 3, (float) width / height, 0.01f, 10000);
-		background(0);
-		for (int x = (int) player.getX() - REND_DIST; x < player.getX() + REND_DIST; x++) {
-			for (int y = (int) player.getY() - REND_DIST; y < player.getY() + REND_DIST; y++) {
-				for (int z = (int) player.getZ() - REND_DIST; z < player.getZ() + REND_DIST; z++) {
-					world.getBlock(x, y, z).draw(x, y, z);
+		if (gui.guiState == GUI.GAME) {
+			if(mouseVisible) {
+				noCursor();
+				mouseVisible = false;
+			}
+			pushMatrix();
+			doCamera(player.getX(), player.getY(), player.getZ(), player.getYaw(), player.getPitch());
+			// Fixes clipping
+			perspective(PI / 3, (float) width / height, 0.01f, 10000);
+			background(0);
+			for (int x = (int) player.getX() - REND_DIST; x < player.getX() + REND_DIST; x++) {
+				for (int y = (int) player.getY() - REND_DIST; y < player.getY() + REND_DIST; y++) {
+					for (int z = (int) player.getZ() - REND_DIST; z < player.getZ() + REND_DIST; z++) {
+						world.getBlock(x, y, z).draw(x, y, z);
+					}
 				}
 			}
+			popMatrix();
+		} else if(!mouseVisible) {
+			cursor();
+			mouseVisible = true;
 		}
-		popMatrix();
+		gui.doGUI();
 		gui.drawGUI();
 	}
 
