@@ -1,5 +1,6 @@
 package Items;
 
+import Blocks.Block;
 import processing.core.PImage;
 
 public class Rock extends Item {
@@ -8,6 +9,10 @@ public class Rock extends Item {
 	
 	public String getName() {
 		return "Rock";
+	}
+	
+	public Block getBlock() {
+		return new Blocks.Rock();
 	}
 	
 	public void draw(int x, int y) {

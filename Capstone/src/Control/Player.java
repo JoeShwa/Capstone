@@ -1,7 +1,7 @@
 package Control;
 
 import Blocks.Block;
-import Items.Rock;
+import Items.Item;
 import processing.core.PApplet;
 
 public class Player {
@@ -14,15 +14,16 @@ public class Player {
 	private double zv;
 	private double yaw;
 	private double pitch;
-	private double yawV;
-	private double pitchV;
+	double yawV;
+	double pitchV;
 	static int[][] dirs = { { 0, 0, -1 }, { 0, 0, 1 }, { 1, 0, 0 }, { -1, 0, 0 }, { 0, -1, 0 }, { 0, 1, 0 } };
 	PApplet p;
 	World world;
 	GUI gui;
 	Inventory inventory;
+	Item selItem;
 	boolean[] input;
-	static final int REACH = 4;
+	static final int REACH = 7;
 	static final double SCAN_STEP = 0.1;
 
 	private double mod(double n1, double n2) {
@@ -62,40 +63,77 @@ public class Player {
 			z %= world.sizeZ();
 		}
 		inventory = new Inventory(50);
-		inventory.addItem(new Rock());
 	}
 
 	public void leftClick() {
-		// Scans to see which block the player is looking at
 		switch (gui.guiState) {
 		case GUI.GAME:
-			double rx = x;
-			double ry = y;
-			double rz = z;
-			double rxv = Math.cos(yaw) * Math.cos(pitch) * SCAN_STEP;
-			double ryv = Math.sin(pitch) * SCAN_STEP;
-			double rzv = Math.sin(yaw) * Math.cos(pitch) * SCAN_STEP;
-			double dist = 0;
-			boolean hitBlock = false;
-			while (dist < REACH) {
-				dist += SCAN_STEP;
-				rx += rxv;
-				ry += ryv;
-				rz += rzv;
-				if (world.getBlock((int) rx, (int) ry, (int) rz).isBreakable()) {
-					hitBlock = true;
-					dist = REACH;
-				}
-			}
+			// Scans to see which block the player is looking at
+			int[] hit = scan(false);
 			// Breaks the selected block
-			if (hitBlock) {
-				inventory.addItem(world.getBlock((int) rx, (int) ry, (int) rz).getItem());
-				world.getBlock((int) rx, (int) ry, (int) rz).breakEvent((int) rx, (int) ry, (int) rz);
+			if (hit != null) {
+				inventory.addItem(world.getBlock(hit[0], hit[1], hit[2]).getItem());
+				world.breakBlock(hit[0], hit[1], hit[2]);
 			}
+			break;
+		case GUI.INVENTORY:
+			int x = (p.mouseX) / 256;
+			int y = (p.mouseY - 28) / 256;
+			selItem = inventory.getItems()[x + y * Inventory.REND_X];
 			break;
 		}
 		// Do gui's left click
 		gui.leftClick();
+	}
+
+	public void rightClick() {
+		switch (gui.guiState) {
+		case GUI.GAME:
+			if (selItem != null) {
+				// Get coords where player is looking
+				int[] hit = scan(true);
+				//Place block if it can, and use the item
+				if (hit != null && selItem.getBlock() != null && inventory.useItem(selItem.getName(), 1)) {
+					world.setBlock(hit[0], hit[1], hit[2], selItem.getBlock());
+					if(selItem.amount == 0) {
+						selItem = null;
+					}
+				}
+			}
+			break;
+		}
+		gui.rightClick();
+	}
+
+	public int[] scan(boolean needAir) {
+		double rx = x;
+		double ry = y;
+		double rz = z;
+		double rxv = Math.cos(yaw) * Math.cos(pitch) * SCAN_STEP;
+		double ryv = Math.sin(pitch) * SCAN_STEP;
+		double rzv = Math.sin(yaw) * Math.cos(pitch) * SCAN_STEP;
+		double dist = 0;
+		boolean hitBlock = false;
+		while (dist < REACH) {
+			dist += SCAN_STEP;
+			rx += rxv;
+			ry += ryv;
+			rz += rzv;
+			if (world.getBlock((int) rx, (int) ry, (int) rz).isBreakable()) {
+				hitBlock = true;
+				dist = REACH;
+			}
+		}
+		if (needAir) {
+			rx -= rxv;
+			ry -= ryv;
+			rz -= rzv;
+		}
+		if (hitBlock) {
+			int[] out = { (int) rx, (int) ry, (int) rz };
+			return out;
+		}
+		return null;
 	}
 
 	public void move(Main m) {

@@ -21,8 +21,11 @@ public abstract class Item implements Items {
 	}
 	
 	public void draw(PImage tex, int x, int y) {
+		p.noStroke();
+		// Rescale and refit position to render
 		x *= 256;
 		y *= 256;
+		y += 28;
 		p.beginShape();
 		p.noTint();
 		p.texture(tex);

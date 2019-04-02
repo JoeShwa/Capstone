@@ -28,6 +28,7 @@ public class Main extends PApplet {
 	WorldGen gen;
 	static int[][] dirs = { { 0, 0, -1 }, { 0, 0, 1 }, { 1, 0, 0 }, { -1, 0, 0 }, { 0, -1, 0 }, { 0, 1, 0 } };
 	boolean mouseVisible = true;
+	int mouseCooldown = 0;
 	
 	public void setup() {
 		try {
@@ -69,6 +70,10 @@ public class Main extends PApplet {
 	}
 
 	public void runGame() {
+		if(mousePressed && mouseCooldown < 1) {
+			mousePressed();
+		}
+		mouseCooldown--;
 		noStroke();
 		// System.out.println(frameRate);
 		player.move(this);
@@ -108,10 +113,13 @@ public class Main extends PApplet {
 	}
 
 	public void mousePressed() {
+		mouseCooldown = 12;
 		switch (mouseButton) {
 		case LEFT:
 			player.leftClick();
 			break;
+		case RIGHT:
+			player.rightClick();
 		}
 
 	}
