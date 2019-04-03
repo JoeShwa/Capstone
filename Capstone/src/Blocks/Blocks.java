@@ -9,6 +9,8 @@ public interface Blocks {
 	boolean isSolid();
 
 	boolean isLight();
+	
+	int getHardness();
 
 	void draw(int x, int y, int z);
 	

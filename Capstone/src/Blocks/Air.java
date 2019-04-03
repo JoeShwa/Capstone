@@ -8,6 +8,10 @@ public class Air extends Block {
 		// Do nothing
 	}
 	
+	public int getHardness() {
+		return 0;
+	}
+	
 	public Item getItem() {
 		return null;
 	}

@@ -29,7 +29,7 @@ public class GUI {
 			break;
 		}
 	}
-	
+
 	public void rightClick() {
 		switch (guiState) {
 		case GAME:
@@ -49,8 +49,12 @@ public class GUI {
 			p.noFill();
 			p.strokeWeight(3);
 			p.ellipse(p.width / 2, p.height / 2, 10, 10);
-			if(player.selItem != null) {
+			if (player.selItem != null) {
 				player.selItem.draw(0, 0);
+			}
+			if (pulse < 256 && pulse > -1) {
+				p.stroke(255, 255, 255, 255 - pulse);
+				p.ellipse(p.width / 2, p.height / 2, pulse / 10 + 10, pulse / 10 + 10);
 			}
 			break;
 		case INVENTORY:
@@ -79,8 +83,8 @@ public class GUI {
 				if (guiState == GAME) {
 					guiState = INVENTORY;
 				} else {
-					player.yawV -= Math.toRadians(p.mouseX - p.width / 2) / 3;
-					player.pitchV -= Math.toRadians(p.mouseY - p.height / 2) / 3;
+					player.yawV -= Math.toRadians(p.mouseX - p.width / 2) * Main.MOUSE_SENSITIVITY;
+					player.pitchV -= Math.toRadians(p.mouseY - p.height / 2) * Main.MOUSE_SENSITIVITY;
 					guiState = GAME;
 				}
 			}
@@ -93,8 +97,6 @@ public class GUI {
 		case GAME:
 			if (pulse < 256 && pulse > -1) {
 				pulse += pulseChange;
-				p.stroke(255, 255, 255, 255 - pulse);
-				p.ellipse(p.width / 2, p.height / 2, pulse / 10 + 10, pulse / 10 + 10);
 			}
 			break;
 		case INVENTORY:

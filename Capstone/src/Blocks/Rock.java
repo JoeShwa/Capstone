@@ -11,6 +11,10 @@ public class Rock extends Block {
 		draw(tex, x, y, z);
 	}
 	
+	public int getHardness() {
+		return 10;
+	}
+	
 	public Item getItem() {
 		return new Items.Rock();
 	}

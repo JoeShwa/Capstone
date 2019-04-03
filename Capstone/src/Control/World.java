@@ -6,9 +6,6 @@ public class World {
 
 	// Stores block data
 	private Block[][][] blocks;
-	static final int CAVES = 20;
-	static final int CAVE_LEN = 30;
-	static final int CAVE_RAD = 5;
 
 	public World(int x, int y, int z) {
 		blocks = new Block[x][y][z];

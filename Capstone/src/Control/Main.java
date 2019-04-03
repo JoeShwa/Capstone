@@ -3,6 +3,7 @@ package Control;
 import java.awt.Robot;
 
 import Blocks.Block;
+import Events.EventManager;
 import Items.Item;
 import processing.core.PApplet;
 
@@ -19,6 +20,7 @@ public class Main extends PApplet {
 	}
 
 	static final int REND_DIST = 20;
+	static final double MOUSE_SENSITIVITY = 0.2;
 
 	Robot r;
 	World world;
@@ -29,7 +31,7 @@ public class Main extends PApplet {
 	static int[][] dirs = { { 0, 0, -1 }, { 0, 0, 1 }, { 1, 0, 0 }, { -1, 0, 0 }, { 0, -1, 0 }, { 0, 1, 0 } };
 	boolean mouseVisible = true;
 	int mouseCooldown = 0;
-	
+
 	public void setup() {
 		try {
 			r = new Robot();
@@ -42,7 +44,10 @@ public class Main extends PApplet {
 		// Prepares the static block class for loading textures
 		Block.prepBlocks(this, world);
 		Item.prepItems(this);
+		// Generates the world
 		gen.start();
+		// Create the event manager
+		EventManager.init(this);
 	}
 
 	public void draw() {
@@ -66,19 +71,18 @@ public class Main extends PApplet {
 		text("Loading... " + gen.phase + " / 4", width / 2, height / 2 - 100);
 		fill(50, 200, 50);
 		rect(0, height / 2, gen.phase * width / 4, 100);
-
 	}
 
 	public void runGame() {
-		if(mousePressed && mouseCooldown < 1) {
+		EventManager.runEvents();
+		if (mousePressed && mouseCooldown < 1) {
 			mousePressed();
 		}
 		mouseCooldown--;
 		noStroke();
-		// System.out.println(frameRate);
 		player.move(this);
 		if (gui.guiState == GUI.GAME) {
-			if(mouseVisible) {
+			if (mouseVisible) {
 				noCursor();
 				mouseVisible = false;
 			}
@@ -95,7 +99,7 @@ public class Main extends PApplet {
 				}
 			}
 			popMatrix();
-		} else if(!mouseVisible) {
+		} else if (!mouseVisible) {
 			cursor();
 			mouseVisible = true;
 		}
@@ -121,7 +125,6 @@ public class Main extends PApplet {
 		case RIGHT:
 			player.rightClick();
 		}
-
 	}
 
 	public void keyPressed() {

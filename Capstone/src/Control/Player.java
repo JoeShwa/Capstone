@@ -1,6 +1,7 @@
 package Control;
 
 import Blocks.Block;
+import Events.EventManager;
 import Items.Item;
 import processing.core.PApplet;
 
@@ -25,6 +26,8 @@ public class Player {
 	boolean[] input;
 	static final int REACH = 7;
 	static final double SCAN_STEP = 0.1;
+	public boolean canMine = true;
+	int mineCool = 0;
 
 	private double mod(double n1, double n2) {
 		if (n1 < 0) {
@@ -66,14 +69,21 @@ public class Player {
 	}
 
 	public void leftClick() {
+		boolean didClick = true;
 		switch (gui.guiState) {
 		case GUI.GAME:
 			// Scans to see which block the player is looking at
-			int[] hit = scan(false);
-			// Breaks the selected block
-			if (hit != null) {
-				inventory.addItem(world.getBlock(hit[0], hit[1], hit[2]).getItem());
-				world.breakBlock(hit[0], hit[1], hit[2]);
+			if (canMine) {
+				int[] hit = scan(false);
+				// Breaks the selected block
+				if (hit != null) {
+					mineCool = world.getBlock(hit[0], hit[1], hit[2]).getHardness();
+					inventory.addItem(world.getBlock(hit[0], hit[1], hit[2]).getItem());
+					world.breakBlock(hit[0], hit[1], hit[2]);
+				}
+			} else {
+				didClick = false;
+				EventManager.addEvent(new Events.MineDelayEvent(this, EventManager.m), mineCool + 2);
 			}
 			break;
 		case GUI.INVENTORY:
@@ -83,7 +93,10 @@ public class Player {
 			break;
 		}
 		// Do gui's left click
-		gui.leftClick();
+		if (didClick) {
+			gui.leftClick();
+		}
+
 	}
 
 	public void rightClick() {
@@ -92,10 +105,10 @@ public class Player {
 			if (selItem != null) {
 				// Get coords where player is looking
 				int[] hit = scan(true);
-				//Place block if it can, and use the item
+				// Place block if it can, and use the item
 				if (hit != null && selItem.getBlock() != null && inventory.useItem(selItem.getName(), 1)) {
 					world.setBlock(hit[0], hit[1], hit[2], selItem.getBlock());
-					if(selItem.amount == 0) {
+					if (selItem.amount == 0) {
 						selItem = null;
 					}
 				}
@@ -139,8 +152,8 @@ public class Player {
 	public void move(Main m) {
 		// Does mouse movement
 		if (gui.guiState == GUI.GAME) {
-			yawV += Math.toRadians(m.mouseX - m.width / 2) / 3;
-			pitchV += Math.toRadians(m.mouseY - m.height / 2) / 3;
+			yawV += Math.toRadians(m.mouseX - m.width / 2) * Main.MOUSE_SENSITIVITY;
+			pitchV += Math.toRadians(m.mouseY - m.height / 2) * Main.MOUSE_SENSITIVITY;
 			m.r.mouseMove(m.width / 2, m.height / 2);
 		}
 		// Moves player
@@ -179,9 +192,12 @@ public class Player {
 		x -= xv * bI;
 		y -= yv * bJ;
 		z -= zv * bK;
+		xv *= 1 - bI;
+		yv *= 1 - bJ;
+		zv *= 1 - bK;
 		// Movement dampening
 		xv *= 0.5;
-		yv *= 0.5;
+		yv *= 0.98;
 		zv *= 0.5;
 		yaw += yawV;
 		pitch += pitchV;
@@ -202,12 +218,12 @@ public class Player {
 			if (m.input['d']) {
 				buttons++;
 			}
-			if (m.input['q']) {
-				buttons++;
-			}
-			if (m.input['e']) {
-				buttons++;
-			}
+//			if (m.input['q']) {
+//				buttons++;
+//			}
+//			if (m.input['e']) {
+//				buttons++;
+//			}
 			double speed = 0.08f / Math.sqrt(buttons);
 			if (pitch > Math.toRadians(89)) {
 				pitch = Math.toRadians(89);
@@ -234,19 +250,22 @@ public class Player {
 				xvc += speed * Math.cos(yaw + Math.toRadians(90));
 				zvc += speed * Math.sin(yaw + Math.toRadians(90));
 			}
-			if (m.input['q']) {
-				yvc += speed;
-			}
-			if (m.input['e']) {
-				yvc -= speed;
+			if (m.input[' ']) {
+				yvc = -0.3 * bJ;
 			}
 			xv += xvc;
-			yv += yvc;
+			yv += yvc + 0.01;
 			zv += zvc;
 		}
 		x = mod(x, world.sizeX());
 		y = mod(y, world.sizeY());
 		z = mod(z, world.sizeZ());
+		if (mineCool > 0) {
+			mineCool--;
+			canMine = false;
+		} else {
+			canMine = true;
+		}
 	}
 
 	// Checks for generic block collisions

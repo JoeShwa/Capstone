@@ -28,6 +28,10 @@ public class StarRock extends LightBlock {
 		super.breakEvent(x, y, z);
 		breakLight(x, y, z, getBrightness());
 	}
+	
+	public int getHardness() {
+		return 30;
+	}
 
 	public boolean isTrans() {
 		return false;

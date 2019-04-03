@@ -89,7 +89,6 @@ public abstract class Block implements Blocks {
 								+ vec.z * Math.abs(dirs[i][1]);
 						mapX = mapX / 100 + 0.5f;
 						mapY = mapY / 100 + 0.5f;
-//						System.out.println(vec.x + " " + vec.y + " " + vec.z + " " + mapX + " " + mapY);
 						p.vertex(vec.x, vec.y, vec.z, mapX, mapY);
 					}
 					p.endShape(PConstants.CLOSE);

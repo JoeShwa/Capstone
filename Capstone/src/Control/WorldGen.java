@@ -8,6 +8,9 @@ public class WorldGen extends Thread {
 	
 	World world;
 	int phase = 0;
+	static final int CAVES = 20;
+	static final int CAVE_LEN = 30;
+	static final int CAVE_RAD = 5;
 	
 	private double mod(double n1, double n2) {
 		if (n1 < 0) {
@@ -21,10 +24,10 @@ public class WorldGen extends Thread {
 	}
 	
 	public void run() {
-		generate(world);
+		generateDim0(world);
 	}
 	
-	public void generate(World w) {
+	public void generateDim0(World w) {
 		// Make everything rock
 		for (int x = 0; x < w.sizeX(); x++) {
 			for (int y = 0; y < w.sizeY(); y++) {
@@ -35,14 +38,14 @@ public class WorldGen extends Thread {
 		}
 		phase = 1;
 		// Add the caves
-		for (int i = 0; i < World.CAVES; i++) {
+		for (int i = 0; i < CAVES; i++) {
 			double cx = Math.random() * w.sizeX();
 			double cy = Math.random() * w.sizeY();
 			double cz = Math.random() * w.sizeZ();
 			double vx = Math.random() * 2 - 1;
 			double vy = Math.random() * 2 - 1;
 			double vz = Math.random() * 2 - 1;
-			int len = (int) (Math.random() * World.CAVE_LEN * 0.5 + World.CAVE_LEN * 0.75);
+			int len = (int) (Math.random() * CAVE_LEN * 0.5 + CAVE_LEN * 0.75);
 			for (int j = 0; j < len; j++) {
 				vx += Math.random() * 0.5 - 0.25;
 				vy += Math.random() * 0.5 - 0.25;
@@ -53,10 +56,10 @@ public class WorldGen extends Thread {
 				cx = mod(cx, w.sizeX());
 				cy = mod(cy, w.sizeY());
 				cz = mod(cz, w.sizeZ());
-				for (int x = (int) cx - World.CAVE_RAD; x < (int) cx + World.CAVE_RAD + 1; x++) {
-					for (int y = (int) cy - World.CAVE_RAD; y < (int) cy + World.CAVE_RAD + 1; y++) {
-						for (int z = (int) cz - World.CAVE_RAD; z < (int) cz + World.CAVE_RAD + 1; z++) {
-							if ((x - cx) * (x - cx) + (y - cy) * (y - cy) + (z - cz) * (z - cz) < World.CAVE_RAD * World.CAVE_RAD) {
+				for (int x = (int) cx - CAVE_RAD; x < (int) cx + CAVE_RAD + 1; x++) {
+					for (int y = (int) cy - CAVE_RAD; y < (int) cy + CAVE_RAD + 1; y++) {
+						for (int z = (int) cz - CAVE_RAD; z < (int) cz + CAVE_RAD + 1; z++) {
+							if ((x - cx) * (x - cx) + (y - cy) * (y - cy) + (z - cz) * (z - cz) < CAVE_RAD * CAVE_RAD) {
 								w.newBlock(x, y, z, new Air());
 							}
 						}
