@@ -21,7 +21,7 @@ public class Main extends PApplet {
 
 	static final int REND_DIST = 20;
 	static final double MOUSE_SENSITIVITY = 0.2;
-
+	static final int DIM_COUNT = 2;
 	Robot r;
 	World world;
 	Player player;
@@ -38,7 +38,7 @@ public class Main extends PApplet {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		world = new World(100, 100, 100);
+		world = new World(100, 100 * DIM_COUNT, 100);
 		gen = new WorldGen(world);
 		input = new boolean[256];
 		// Prepares the static block class for loading textures
@@ -51,7 +51,7 @@ public class Main extends PApplet {
 	}
 
 	public void draw() {
-		if (gen.phase < 4) {
+		if (gen.phase < DIM_COUNT) {
 			loadScreen();
 		} else {
 			if (player == null) {
@@ -68,9 +68,9 @@ public class Main extends PApplet {
 		fill(255);
 		textSize(128);
 		textAlign(CENTER, CENTER);
-		text("Loading... " + gen.phase + " / 4", width / 2, height / 2 - 100);
+		text("Loading... " + gen.phase + " / " + DIM_COUNT, width / 2, height / 2 - 100);
 		fill(50, 200, 50);
-		rect(0, height / 2, gen.phase * width / 4, 100);
+		rect(0, height / 2, gen.phase * width / DIM_COUNT, 100);
 	}
 
 	public void runGame() {
@@ -105,6 +105,7 @@ public class Main extends PApplet {
 		}
 		gui.doGUI();
 		gui.drawGUI();
+		text(frameRate, 500, 100);
 	}
 
 	// Positions camera based on position and direction
@@ -117,13 +118,15 @@ public class Main extends PApplet {
 	}
 
 	public void mousePressed() {
-		mouseCooldown = 12;
-		switch (mouseButton) {
-		case LEFT:
-			player.leftClick();
-			break;
-		case RIGHT:
-			player.rightClick();
+		if (player != null) {
+			mouseCooldown = 12;
+			switch (mouseButton) {
+			case LEFT:
+				player.leftClick();
+				break;
+			case RIGHT:
+				player.rightClick();
+			}
 		}
 	}
 

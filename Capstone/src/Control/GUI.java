@@ -16,7 +16,7 @@ public class GUI {
 	boolean prevC = false;
 
 	public GUI(PApplet p) {
-		this.p = p;
+		GUI.p = p;
 	}
 
 	public void leftClick() {
