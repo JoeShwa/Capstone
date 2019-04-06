@@ -1,0 +1,2 @@
+INDEX VERSION 1.131+C:\Users\miner\Desktop\Capstone Workspace\.metadata\.plugins\org.eclipse.jdt.core
+748477285.index
