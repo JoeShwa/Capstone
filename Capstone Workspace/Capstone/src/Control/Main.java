@@ -11,6 +11,7 @@ public class Main extends PApplet {
 
 	// Tells the library to use this class as the main class
 	public static void main(String args[]) {
+		System.out.println("ffs");
 		PApplet.main("Control.Main");
 	}
 
