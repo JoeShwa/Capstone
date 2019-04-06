@@ -105,7 +105,6 @@ public class Main extends PApplet {
 		}
 		gui.doGUI();
 		gui.drawGUI();
-		text(frameRate, 500, 100);
 	}
 
 	// Positions camera based on position and direction
