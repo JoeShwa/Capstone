@@ -9,8 +9,8 @@ public class GUI {
 	static PApplet p;
 	int pulse = 256;
 	int pulseChange = 0;
-	static final int GAME = 0;
-	static final int INVENTORY = 1;
+	public static final int GAME = 0;
+	public static final int INVENTORY = 1;
 	public int guiState = GAME;
 	boolean prevC = false;
 
@@ -77,7 +77,7 @@ public class GUI {
 	}
 
 	public void doGUI() {
-		if (Globals.player.input['c']) {
+		if (Globals.player.input['e']) {
 			if (prevC == false) {
 				if (guiState == GAME) {
 					guiState = INVENTORY;

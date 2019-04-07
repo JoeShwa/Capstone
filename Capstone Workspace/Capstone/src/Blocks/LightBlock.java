@@ -45,6 +45,16 @@ public abstract class LightBlock extends Block {
 			}
 		}
 	}
+	
+	public void placeEvent(int x, int y, int z, Block prev) {
+		super.placeEvent(x, y, z, prev);
+		lightArea(x, y, z, getBrightness());
+	}
+
+	public void breakEvent(int x, int y, int z) {
+		super.breakEvent(x, y, z);
+		breakLight(x, y, z, getBrightness());
+	}
 
 	public boolean isLight() {
 		return true;

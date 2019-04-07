@@ -36,6 +36,6 @@ public abstract class Item implements Items {
 		p.endShape();
 		p.fill(255);
 		p.textSize(32);
-		p.text(amount, x + 32, y + 222);
+		p.text(amount, x + 64, y + 222);
 	}
 }

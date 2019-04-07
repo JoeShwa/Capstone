@@ -48,6 +48,7 @@ public class Player {
 		while (check()) {
 			x = Globals.world.sizeX() * Math.random();
 			y = Globals.world.sizeY() - 1;
+			y = 100;
 			z = Globals.world.sizeZ() * Math.random();
 			int count = 0;
 			while (count < 75 && check()) {
@@ -67,13 +68,18 @@ public class Player {
 				int[] hit = scan(false);
 				// Breaks the selected block
 				if (hit != null) {
-					mineCool = Globals.world.getBlock(hit[0], hit[1], hit[2]).getHardness();
-					inventory.addItem(Globals.world.getBlock(hit[0], hit[1], hit[2]).getItem());
-					Globals.world.breakBlock(hit[0], hit[1], hit[2]);
+					Block b = Globals.world.getBlock(hit[0], hit[1], hit[2]);
+					mineCool = b.getHardness();
+					if (mineCool > 0) {
+						inventory.addItem(b.getItem());
+						Globals.world.breakBlock(hit[0], hit[1], hit[2]);
+						// Pushes an event to try to mine again when possible, allowing the player to
+						// hold left click
+						EventManager.addEvent(new Events.MineEvent(this, EventManager.m), mineCool + 2);
+					}
 				}
 			} else {
 				didClick = false;
-				EventManager.addEvent(new Events.MineDelayEvent(this, EventManager.m), mineCool + 2);
 			}
 			break;
 		case GUI.INVENTORY:
@@ -86,7 +92,7 @@ public class Player {
 			}
 			break;
 		}
-		// Do StaticAccess.gui's left click
+		// Do gui's left click
 		if (didClick) {
 			Globals.gui.leftClick();
 		}
@@ -251,7 +257,7 @@ public class Player {
 		x = mod(x, Globals.world.sizeX());
 		y = mod(y, Globals.world.sizeY());
 		z = mod(z, Globals.world.sizeZ());
-		if(oldX != x || oldY != y || oldZ != z) {
+		if (oldX != x || oldY != y || oldZ != z) {
 			Globals.main.shiftRenderList((int) (x - oldX), (int) (y - oldY), (int) (z - oldZ));
 		}
 		if (mineCool > 0) {

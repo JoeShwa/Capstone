@@ -44,13 +44,6 @@ public class Main extends PApplet {
 		bm = System.nanoTime();
 	}
 
-	private int mod(int n1, int n2) {
-		if (n1 < 0) {
-			n1 += n2;
-		}
-		return n1 % n2;
-	}
-
 	public void setup() {
 		Globals.add(this);
 		Globals.add((PApplet) this);
@@ -80,6 +73,7 @@ public class Main extends PApplet {
 		}
 	}
 
+	// Shifts coordinates of rendered blocks, used when the player loops over the edge of the map
 	public void shiftRenderList(int x, int y, int z) {
 		for (BlockPos pos : renderList) {
 			pos.x += x;
@@ -89,7 +83,7 @@ public class Main extends PApplet {
 	}
 
 	public void draw() {
-		if (gen.phase < World.DIM_COUNT) {
+		if (gen.phase < World.DIM_COUNT + 1) {
 			loadScreen();
 		} else {
 			if (player == null) {
@@ -131,13 +125,6 @@ public class Main extends PApplet {
 			doCamera(player.getX(), player.getY(), player.getZ(), player.getYaw(), player.getPitch());
 			// Fixes clipping
 			perspective(PI / 3, (float) width / height, 0.01f, 10000);
-//			for (int x = (int) player.getX() - REND_DIST; x < player.getX() + REND_DIST; x++) {
-//				for (int y = (int) player.getY() - REND_DIST; y < player.getY() + REND_DIST; y++) {
-//					for (int z = (int) player.getZ() - REND_DIST; z < player.getZ() + REND_DIST; z++) {
-//						world.getBlock(x, y, z).draw(x, y, z);
-//					}
-//				}
-//			}
 			// Adds the blocks at the edges of the render distance to be rendered
 			// Requires loop to account for (literal) corner cases with movement
 			for (int i = 0; i < 3; i++) {

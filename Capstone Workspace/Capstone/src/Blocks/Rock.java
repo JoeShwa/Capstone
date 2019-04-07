@@ -27,8 +27,4 @@ public class Rock extends Block {
 		return true;
 	}
 
-	public boolean isLight() {
-		return false;
-	}
-
 }
