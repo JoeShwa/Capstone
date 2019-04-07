@@ -6,6 +6,9 @@ public class World {
 
 	// Stores block data
 	private Block[][][] blocks;
+	
+	public static final double GRAVITY = 0.01;
+	public static final int DIM_COUNT = 2;
 
 	public World(int x, int y, int z) {
 		blocks = new Block[x][y][z];
@@ -45,9 +48,9 @@ public class World {
 	}
 
 	public void setBlock(int x, int y, int z, Block b) {
-		short light = getBlock(x, y, z).light;
+		Block prev = getBlock(x, y, z);
 		blocks[mod(x, sizeX())][mod(y, sizeY())][mod(z, sizeZ())] = b;
-		b.placeEvent(x, y, z, light);
+		b.placeEvent(x, y, z, prev);
 	}
 
 	public void newBlock(int x, int y, int z, Block b) {

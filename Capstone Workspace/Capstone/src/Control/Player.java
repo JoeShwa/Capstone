@@ -3,7 +3,6 @@ package Control;
 import Blocks.Block;
 import Events.EventManager;
 import Items.Item;
-import processing.core.PApplet;
 
 public class Player {
 
@@ -18,14 +17,12 @@ public class Player {
 	double yawV;
 	double pitchV;
 	static int[][] dirs = { { 0, 0, -1 }, { 0, 0, 1 }, { 1, 0, 0 }, { -1, 0, 0 }, { 0, -1, 0 }, { 0, 1, 0 } };
-	PApplet p;
-	World world;
-	GUI gui;
 	Inventory inventory;
 	Item selItem;
 	boolean[] input;
 	static final int REACH = 7;
 	static final double SCAN_STEP = 0.1;
+	static final double JUMP = 0.3;
 	public boolean canMine = true;
 	int mineCool = 0;
 
@@ -36,50 +33,43 @@ public class Player {
 		return n1 % n2;
 	}
 
-	public Player(PApplet p, World world, GUI gui, boolean[] input) {
+	public Player(boolean[] input) {
 		yaw = 0;
 		pitch = 0;
 		yawV = 0;
 		pitchV = 0;
-		this.p = p;
-		this.world = world;
-		this.gui = gui;
 		xv = 0;
 		yv = 0;
 		zv = 0;
 		this.input = input;
-		x = world.sizeX() / 2;
-		y = world.sizeY() / 2;
-		z = world.sizeZ() / 2;
+		x = Globals.world.sizeX() / 2;
+		y = Globals.world.sizeY() - 1;
+		z = Globals.world.sizeZ() / 2;
 		while (check()) {
-			x += Math.random() * 2 - 1;
-			y += Math.random() * 2 - 1;
-			z += Math.random() * 2 - 1;
-			if (x < 0)
-				x += world.sizeX();
-			x %= world.sizeX();
-			if (y < 0)
-				y += world.sizeY();
-			y %= world.sizeY();
-			if (z < 0)
-				z += world.sizeZ();
-			z %= world.sizeZ();
+			x = Globals.world.sizeX() * Math.random();
+			y = Globals.world.sizeY() - 1;
+			z = Globals.world.sizeZ() * Math.random();
+			int count = 0;
+			while (count < 75 && check()) {
+				y--;
+				count++;
+			}
 		}
 		inventory = new Inventory(50);
 	}
 
 	public void leftClick() {
 		boolean didClick = true;
-		switch (gui.guiState) {
+		switch (Globals.gui.guiState) {
 		case GUI.GAME:
 			// Scans to see which block the player is looking at
 			if (canMine) {
 				int[] hit = scan(false);
 				// Breaks the selected block
 				if (hit != null) {
-					mineCool = world.getBlock(hit[0], hit[1], hit[2]).getHardness();
-					inventory.addItem(world.getBlock(hit[0], hit[1], hit[2]).getItem());
-					world.breakBlock(hit[0], hit[1], hit[2]);
+					mineCool = Globals.world.getBlock(hit[0], hit[1], hit[2]).getHardness();
+					inventory.addItem(Globals.world.getBlock(hit[0], hit[1], hit[2]).getItem());
+					Globals.world.breakBlock(hit[0], hit[1], hit[2]);
 				}
 			} else {
 				didClick = false;
@@ -87,27 +77,31 @@ public class Player {
 			}
 			break;
 		case GUI.INVENTORY:
-			int x = (p.mouseX) / 256;
-			int y = (p.mouseY - 28) / 256;
-			selItem = inventory.getItems()[x + y * Inventory.REND_X];
+			int x = (Globals.p.mouseX) / 256;
+			int y = (Globals.p.mouseY - 28) / 256;
+			int ind = x + y * Inventory.REND_X;
+			Item[] items = inventory.getItems();
+			if (ind > -1 && ind < items.length) {
+				selItem = items[ind];
+			}
 			break;
 		}
-		// Do gui's left click
+		// Do StaticAccess.gui's left click
 		if (didClick) {
-			gui.leftClick();
+			Globals.gui.leftClick();
 		}
 
 	}
 
 	public void rightClick() {
-		switch (gui.guiState) {
+		switch (Globals.gui.guiState) {
 		case GUI.GAME:
 			if (selItem != null) {
 				// Get coords where player is looking
 				int[] hit = scan(true);
 				// Place block if it can, and use the item
 				if (hit != null && selItem.getBlock() != null && inventory.useItem(selItem.getName(), 1)) {
-					world.setBlock(hit[0], hit[1], hit[2], selItem.getBlock());
+					Globals.world.setBlock(hit[0], hit[1], hit[2], selItem.getBlock());
 					if (selItem.amount == 0) {
 						selItem = null;
 					}
@@ -115,7 +109,7 @@ public class Player {
 			}
 			break;
 		}
-		gui.rightClick();
+		Globals.gui.rightClick();
 	}
 
 	public int[] scan(boolean needAir) {
@@ -132,7 +126,7 @@ public class Player {
 			rx += rxv;
 			ry += ryv;
 			rz += rzv;
-			if (world.getBlock((int) rx, (int) ry, (int) rz).isBreakable()) {
+			if (Globals.world.getBlock((int) rx, (int) ry, (int) rz).isBreakable()) {
 				hitBlock = true;
 				dist = REACH;
 			}
@@ -151,7 +145,7 @@ public class Player {
 
 	public void move(Main m) {
 		// Does mouse movement
-		if (gui.guiState == GUI.GAME) {
+		if (Globals.gui.guiState == GUI.GAME) {
 			yawV += Math.toRadians(m.mouseX - m.width / 2) * Main.MOUSE_SENSITIVITY;
 			pitchV += Math.toRadians(m.mouseY - m.height / 2) * Main.MOUSE_SENSITIVITY;
 			m.r.mouseMove(m.width / 2, m.height / 2);
@@ -205,7 +199,7 @@ public class Player {
 		pitchV *= 0.3;
 		double buttons = 0;
 		// Movement from player input
-		if (gui.guiState == GUI.GAME) {
+		if (Globals.gui.guiState == GUI.GAME) {
 			if (m.input['w']) {
 				buttons++;
 			}
@@ -218,12 +212,6 @@ public class Player {
 			if (m.input['d']) {
 				buttons++;
 			}
-//			if (m.input['q']) {
-//				buttons++;
-//			}
-//			if (m.input['e']) {
-//				buttons++;
-//			}
 			double speed = 0.08f / Math.sqrt(buttons);
 			if (pitch > Math.toRadians(89)) {
 				pitch = Math.toRadians(89);
@@ -251,15 +239,21 @@ public class Player {
 				zvc += speed * Math.sin(yaw + Math.toRadians(90));
 			}
 			if (m.input[' ']) {
-				yvc = -0.3 * bJ;
+				yvc = -JUMP * bJ;
 			}
 			xv += xvc;
-			yv += yvc + 0.01;
+			yv += yvc + World.GRAVITY;
 			zv += zvc;
 		}
-		x = mod(x, world.sizeX());
-		y = mod(y, world.sizeY());
-		z = mod(z, world.sizeZ());
+		double oldX = x;
+		double oldY = y;
+		double oldZ = z;
+		x = mod(x, Globals.world.sizeX());
+		y = mod(y, Globals.world.sizeY());
+		z = mod(z, Globals.world.sizeZ());
+		if(oldX != x || oldY != y || oldZ != z) {
+			Globals.main.shiftRenderList((int) (x - oldX), (int) (y - oldY), (int) (z - oldZ));
+		}
 		if (mineCool > 0) {
 			mineCool--;
 			canMine = false;
@@ -277,7 +271,7 @@ public class Player {
 					double bx = x - 0.4 + (double) i * 0.8;
 					double by = y - 0.4 + (double) j * 0.8;
 					double bz = z - 0.4 + (double) k * 0.8;
-					Block block = world.getBlock((int) bx, (int) by, (int) bz);
+					Block block = Globals.world.getBlock((int) bx, (int) by, (int) bz);
 					if (block.isSolid()) {
 						collide = true;
 					}

@@ -1,5 +1,7 @@
 package Blocks;
 
+import Control.BlockPos;
+import Control.Globals;
 import Control.World;
 import processing.core.PApplet;
 import processing.core.PConstants;
@@ -13,11 +15,12 @@ public abstract class Block implements Blocks {
 	static PShape sh;
 	static int[][] dirs = { { 0, 0, -1 }, { 0, 0, 1 }, { 1, 0, 0 }, { -1, 0, 0 }, { 0, -1, 0 }, { 0, 1, 0 } };
 	boolean[] faces = new boolean[6];
-	public boolean visible;
+	public boolean isVisible;
 	static World world;
 	public short light;
 	static final int AMBIENCE = 75;
 	static final int BIGGEST_LIGHT = 4;
+	public boolean isDrawn;
 
 	public boolean isLight() {
 		return false;
@@ -31,8 +34,9 @@ public abstract class Block implements Blocks {
 		sh.getVertexCount();
 	}
 
-	public void placeEvent(int x, int y, int z, short light) {
-		this.light = (short) Math.max(AMBIENCE, light);
+	public void placeEvent(int x, int y, int z, Block prev) {
+		this.light = (short) Math.max(AMBIENCE, prev.light);
+		isDrawn = prev.isDrawn;
 		updateFaces(x, y, z);
 		for (int i = 0; i < dirs.length; i++) {
 			int nx = x + dirs[i][0];
@@ -57,23 +61,27 @@ public abstract class Block implements Blocks {
 	}
 
 	public void updateFaces(int x, int y, int z) {
-		visible = false;
+		isVisible = false;
 		for (int i = 0; i < 6; i++) {
 			if (world.getBlock(x + dirs[i][0], y + dirs[i][1], z + dirs[i][2]).isTrans()) {
 				faces[i] = true;
-				visible = true;
+				isVisible = true;
+			} else {
+				faces[i] = false;
 			}
+		}
+		if(isVisible) {
+			Globals.main.addRenderBlock(new BlockPos(x, y, z));
 		}
 	}
 
 	void draw(PImage tex, int x, int y, int z) {
-		if (visible) {
+		if (isVisible) {
 			x *= 100;
 			y *= 100;
 			z *= 100;
 			p.pushMatrix();
 			p.translate(x + 50, y + 50, z + 50);
-			// p.shape(sh);
 			for (int i = 0; i < 6; i++) {
 				if (faces[i]) {
 					p.beginShape(PConstants.QUADS);

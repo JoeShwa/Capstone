@@ -19,8 +19,8 @@ public class StarRock extends LightBlock {
 		draw(tex, x, y, z);
 	}
 
-	public void placeEvent(int x, int y, int z, short light) {
-		super.placeEvent(x, y, z, light);
+	public void placeEvent(int x, int y, int z, Block prev) {
+		super.placeEvent(x, y, z, prev);
 		lightArea(x, y, z, getBrightness());
 	}
 

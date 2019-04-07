@@ -1,6 +1,8 @@
 package Control;
 
 import java.awt.Robot;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 import Blocks.Block;
 import Events.EventManager;
@@ -20,25 +22,45 @@ public class Main extends PApplet {
 	}
 
 	static final int REND_DIST = 20;
-	static final double MOUSE_SENSITIVITY = 0.2;
-	static final int DIM_COUNT = 2;
+	static final double MOUSE_SENSITIVITY = 0.3;
 	Robot r;
 	World world;
 	Player player;
-	GUI gui;
 	boolean[] input;
 	WorldGen gen;
 	static int[][] dirs = { { 0, 0, -1 }, { 0, 0, 1 }, { 1, 0, 0 }, { -1, 0, 0 }, { 0, -1, 0 }, { 0, 1, 0 } };
 	boolean mouseVisible = true;
 	int mouseCooldown = 0;
+	LinkedList<BlockPos> renderList;
+
+	static long bm = 0;
+
+	public static void benchmark(String id) {
+		long dif = System.nanoTime() - bm;
+		System.out.println(id + ": " + (double) dif / 1000000);
+	}
+
+	public static void bmStart() {
+		bm = System.nanoTime();
+	}
+
+	private int mod(int n1, int n2) {
+		if (n1 < 0) {
+			n1 += n2;
+		}
+		return n1 % n2;
+	}
 
 	public void setup() {
+		Globals.add(this);
+		Globals.add((PApplet) this);
 		try {
 			r = new Robot();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		world = new World(100, 100 * DIM_COUNT, 100);
+		world = new World(100, 100 * World.DIM_COUNT, 100);
+		Globals.add(world);
 		gen = new WorldGen(world);
 		input = new boolean[256];
 		// Prepares the static block class for loading textures
@@ -50,16 +72,35 @@ public class Main extends PApplet {
 		EventManager.init(this);
 	}
 
+	// Initializes render list with initially visible blocks
+	public void setupRenderList() {
+		renderList = new LinkedList<>();
+		for (int i = 0; i <= REND_DIST; i++) {
+			addRenderBlocks(i);
+		}
+	}
+
+	public void shiftRenderList(int x, int y, int z) {
+		for (BlockPos pos : renderList) {
+			pos.x += x;
+			pos.y += y;
+			pos.z += z;
+		}
+	}
+
 	public void draw() {
-		if (gen.phase < DIM_COUNT) {
+		if (gen.phase < World.DIM_COUNT) {
 			loadScreen();
 		} else {
 			if (player == null) {
-				player = new Player(this, world, new GUI(this), input);
-				gui = player.gui;
-				gui.player = player;
+				player = new Player(input);
+				Globals.add(player);
+				Globals.add(new GUI(this));
+				setupRenderList();
 			}
+			bmStart();
 			runGame();
+			benchmark("run");
 		}
 	}
 
@@ -68,9 +109,9 @@ public class Main extends PApplet {
 		fill(255);
 		textSize(128);
 		textAlign(CENTER, CENTER);
-		text("Loading... " + gen.phase + " / " + DIM_COUNT, width / 2, height / 2 - 100);
+		text("Loading... " + gen.phase + " / " + World.DIM_COUNT, width / 2, height / 2 - 100);
 		fill(50, 200, 50);
-		rect(0, height / 2, gen.phase * width / DIM_COUNT, 100);
+		rect(0, height / 2, gen.phase * width / World.DIM_COUNT, 100);
 	}
 
 	public void runGame() {
@@ -81,7 +122,7 @@ public class Main extends PApplet {
 		mouseCooldown--;
 		noStroke();
 		player.move(this);
-		if (gui.guiState == GUI.GAME) {
+		if (Globals.gui.guiState == GUI.GAME) {
 			if (mouseVisible) {
 				noCursor();
 				mouseVisible = false;
@@ -90,12 +131,32 @@ public class Main extends PApplet {
 			doCamera(player.getX(), player.getY(), player.getZ(), player.getYaw(), player.getPitch());
 			// Fixes clipping
 			perspective(PI / 3, (float) width / height, 0.01f, 10000);
+//			for (int x = (int) player.getX() - REND_DIST; x < player.getX() + REND_DIST; x++) {
+//				for (int y = (int) player.getY() - REND_DIST; y < player.getY() + REND_DIST; y++) {
+//					for (int z = (int) player.getZ() - REND_DIST; z < player.getZ() + REND_DIST; z++) {
+//						world.getBlock(x, y, z).draw(x, y, z);
+//					}
+//				}
+//			}
+			// Adds the blocks at the edges of the render distance to be rendered
+			// Requires loop to account for (literal) corner cases with movement
+			for (int i = 0; i < 3; i++) {
+				addRenderBlocks(REND_DIST - i);
+			}
+			// Draws the blocks
 			background(0);
-			for (int x = (int) player.getX() - REND_DIST; x < player.getX() + REND_DIST; x++) {
-				for (int y = (int) player.getY() - REND_DIST; y < player.getY() + REND_DIST; y++) {
-					for (int z = (int) player.getZ() - REND_DIST; z < player.getZ() + REND_DIST; z++) {
-						world.getBlock(x, y, z).draw(x, y, z);
-					}
+			for (Iterator<BlockPos> iterator = renderList.iterator(); iterator.hasNext();) {
+				BlockPos pos = iterator.next();
+				// Remove blocks from the render list if they fall out of range
+				int dist = Math.abs(pos.x - (int) (player.getX() + 0.0)) + Math.abs(pos.y - (int) (player.getY() + 0.0))
+						+ Math.abs(pos.z - (int) (player.getZ() + 0.0));
+				Block b = world.getBlock(pos.x, pos.y, pos.z);
+				if (dist <= REND_DIST && b.isVisible) {
+					b.draw(pos.x, pos.y, pos.z);
+				} else {
+					// Remove block from draw list if it shouldn't be drawn
+					iterator.remove();
+					b.isDrawn = false;
 				}
 			}
 			popMatrix();
@@ -103,8 +164,34 @@ public class Main extends PApplet {
 			cursor();
 			mouseVisible = true;
 		}
-		gui.doGUI();
-		gui.drawGUI();
+		Globals.gui.doGUI();
+		Globals.gui.drawGUI();
+	}
+
+	// Adds blocks to the render list if they just came in range
+	public void addRenderBlocks(int dist) {
+		for (int x = -dist; x <= dist; x++) {
+			for (int y = -dist; y <= dist; y++) {
+				int z = dist - (Math.abs(x) + Math.abs(y));
+				for (int i = 0; i < 2; i++) {
+					int rx = x + (int) (player.getX() + 0.0);
+					int ry = y + (int) (player.getY() + 0.0);
+					int rz = z + (int) (player.getZ() + 0.0);
+					Block b = world.getBlock(rx, ry, rz);
+					if (b.isVisible) {
+						addRenderBlock(new BlockPos(rx, ry, rz));
+					}
+					z *= -1;
+				}
+			}
+		}
+	}
+
+	public void addRenderBlock(BlockPos pos) {
+		if (renderList != null && !world.getBlock(pos.x, pos.y, pos.z).isDrawn) {
+			renderList.add(pos);
+			world.getBlock(pos.x, pos.y, pos.z).isDrawn = true;
+		}
 	}
 
 	// Positions camera based on position and direction

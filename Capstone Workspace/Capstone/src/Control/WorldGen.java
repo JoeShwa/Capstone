@@ -26,9 +26,9 @@ public class WorldGen extends Thread {
 	public void run() {
 		fillAir(0, 0, 0, 100, 200, 100);
 		phase = 0;
-		generateDim0(world, 0, 100);
+		generateDim0(world, 100, 200);
 		phase++;
-		generateDim1(world, 100, 200);
+		generateDim1(world, 0, 100);
 		phase++;
 	}
 
@@ -93,7 +93,7 @@ public class WorldGen extends Thread {
 		for (int x = 0; x < w.sizeX(); x++) {
 			for (int y = 0; y < w.sizeY(); y++) {
 				for (int z = 0; z < w.sizeZ(); z++) {
-					if (w.getBlock(x, y, z) instanceof Rock && w.getBlock(x, y, z).visible && Math.random() < 0.04) {
+					if (w.getBlock(x, y, z) instanceof Rock && w.getBlock(x, y, z).isVisible && Math.random() < 0.04) {
 						w.setBlock(x, y, z, new StarRock());
 					}
 				}
@@ -103,7 +103,7 @@ public class WorldGen extends Thread {
 		for (int x = 0; x < w.sizeX(); x++) {
 			for (int y = 0; y < w.sizeY(); y++) {
 				for (int z = 0; z < w.sizeZ(); z++) {
-					w.getBlock(x, y, z).placeEvent(x, y, z, w.getBlock(x, y, z).light);
+					w.getBlock(x, y, z).placeEvent(x, y, z, w.getBlock(x, y, z));
 				}
 			}
 		}

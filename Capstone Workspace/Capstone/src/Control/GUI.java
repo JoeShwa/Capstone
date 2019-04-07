@@ -5,8 +5,7 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 
 public class GUI {
-
-	Player player;
+	
 	static PApplet p;
 	int pulse = 256;
 	int pulseChange = 0;
@@ -49,8 +48,8 @@ public class GUI {
 			p.noFill();
 			p.strokeWeight(3);
 			p.ellipse(p.width / 2, p.height / 2, 10, 10);
-			if (player.selItem != null) {
-				player.selItem.draw(0, 0);
+			if (Globals.player.selItem != null) {
+				Globals.player.selItem.draw(0, 0);
 			}
 			if (pulse < 256 && pulse > -1) {
 				p.stroke(255, 255, 255, 255 - pulse);
@@ -59,7 +58,7 @@ public class GUI {
 			break;
 		case INVENTORY:
 			p.background(0);
-			Item[] inv = player.inventory.getItems();
+			Item[] inv = Globals.player.inventory.getItems();
 			if (inv.length > 0) {
 				for (int i = 0; i < Inventory.REND_X; i++) {
 					for (int j = 0; j < Inventory.REND_Y; j++) {
@@ -78,13 +77,13 @@ public class GUI {
 	}
 
 	public void doGUI() {
-		if (player.input['c']) {
+		if (Globals.player.input['c']) {
 			if (prevC == false) {
 				if (guiState == GAME) {
 					guiState = INVENTORY;
 				} else {
-					player.yawV -= Math.toRadians(p.mouseX - p.width / 2) * Main.MOUSE_SENSITIVITY;
-					player.pitchV -= Math.toRadians(p.mouseY - p.height / 2) * Main.MOUSE_SENSITIVITY;
+					Globals.player.yawV -= Math.toRadians(p.mouseX - p.width / 2) * Main.MOUSE_SENSITIVITY;
+					Globals.player.pitchV -= Math.toRadians(p.mouseY - p.height / 2) * Main.MOUSE_SENSITIVITY;
 					guiState = GAME;
 				}
 			}
