@@ -62,7 +62,6 @@ public class WorldGen extends Thread {
 				for (y = maxY; y > height; y--) {
 					world.setBlock(x, y, z, new Sludge());
 				}
-				y -= 5;
 				int tx = x;
 				int tz = z;
 				if (Math.random() < 0.02) {
