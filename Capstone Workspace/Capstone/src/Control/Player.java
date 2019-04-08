@@ -1,6 +1,7 @@
 package Control;
 
 import Blocks.Block;
+import Entities.Particle;
 import Events.EventManager;
 import Items.Item;
 
@@ -137,6 +138,11 @@ public class Player {
 						selItem = null;
 					}
 				}
+			} else {
+				double xv = Math.cos(yaw) * Math.cos(pitch);
+				double yv = Math.sin(pitch);
+				double zv = Math.sin(yaw) * Math.cos(pitch);
+				Globals.world.addEntity(new Particle(x, y, z, xv, yv, zv));
 			}
 			break;
 		}

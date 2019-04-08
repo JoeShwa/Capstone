@@ -1,7 +1,6 @@
 package Blocks;
 
 import Control.Globals;
-import Control.Main;
 
 public abstract class LightBlock extends Block {
 

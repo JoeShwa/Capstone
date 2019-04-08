@@ -106,22 +106,32 @@ public class Main extends PApplet {
 		fill(255);
 		textSize(128);
 		textAlign(CENTER, CENTER);
-		text("Loading... " + gen.phase + " / " + World.DIM_COUNT, width / 2, height / 2 - 100);
+		text("Loading... " + gen.phase + " / " + (World.DIM_COUNT + 1), width / 2, height / 2 - 100);
 		fill(50, 200, 50);
-		rect(0, height / 2, gen.phase * width / World.DIM_COUNT, 100);
+		rect(0, height / 2, gen.phase * width / (World.DIM_COUNT + 1), 100);
 	}
 
 	public void updateEntities() {
-		LinkedList<Entity> entities = world.getEntities();
-		for (Iterator<Entity> iter = entities.iterator(); iter.hasNext();) {
-			Entity entity = iter.next();
-			entity.update();
+		for(int x = 0; x < world.sizeX() / World.SUBDIV; x++) {
+			for(int y = 0; y < world.sizeY() / World.SUBDIV; y++) {
+				for(int z = 0; z < world.sizeZ() / World.SUBDIV; z++) {
+					LinkedList<Entity> entities = world.getEntities(x, y, z);
+					for (Iterator<Entity> iter = entities.iterator(); iter.hasNext();) {
+						Entity entity = iter.next();
+						entity.update();
+						if(entity.isDead) {
+							iter.remove();
+						}
+					}
+				}
+			}
 		}
 	}
 
 	public void drawEntities() {
 		LinkedList<Entity> entities = world.getEntities(Globals.floor(Globals.player.getX()),
-				Globals.floor(Globals.player.getY()), Globals.floor(Globals.player.getZ()), 6);
+				Globals.floor(Globals.player.getY()), Globals.floor(Globals.player.getZ()), REND_DIST / World.SUBDIV);
+		entities = world.getEntities();
 		for (Iterator<Entity> iter = entities.iterator(); iter.hasNext();) {
 			Entity entity = iter.next();
 			entity.draw();

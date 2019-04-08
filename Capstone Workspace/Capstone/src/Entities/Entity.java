@@ -4,11 +4,19 @@ import Control.Globals;
 
 public abstract class Entity implements Entities {
 
-	double x;
-	double y;
-	double z;
+	public double x;
+	public double y;
+	public double z;
+	double xv = 0;
+	double yv = 0;
+	double zv = 0;
+	public boolean isDead = false;
+	
+	protected void kill() {
+		isDead = true;
+	}
 
-	private void wrapPos() {
+	protected void wrapPos() {
 		x = Globals.mod(x, Globals.world.sizeX());
 		y = Globals.mod(y, Globals.world.sizeY());
 		z = Globals.mod(z, Globals.world.sizeZ());
