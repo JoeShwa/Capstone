@@ -9,6 +9,7 @@ public class Globals {
 	public static Player player;
 	public static World world;
 	public static GUI gui;
+<<<<<<< HEAD
 	// Replacement for frameCount to work properly
 	public static int gameTime;
 	// Used to loop through all 6 directions
@@ -43,6 +44,8 @@ public class Globals {
 		}
 		return (int) n;
 	}
+=======
+>>>>>>> parent of 05e034c... Pre lighting rework backup
 	
 	public static void add(Main main) {
 		Globals.main = main;

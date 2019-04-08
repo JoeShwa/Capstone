@@ -11,10 +11,6 @@ public class Sludge extends Item {
 	public String getName() {
 		return "Sludge";
 	}
-	
-	public String getLore() {
-		return "A sticky half-liquid, half-solid substance which is difficult to energize due to its nature.";
-	}
 
 	public Block getBlock() {
 		return new Blocks.Sludge();

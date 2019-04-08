@@ -21,7 +21,7 @@ public class Main extends PApplet {
 		fullScreen(P3D);
 	}
 
-	static final int REND_DIST = 30;
+	static final int REND_DIST = 20;
 	static final double MOUSE_SENSITIVITY = 0.3;
 	Robot r;
 	World world;
@@ -37,7 +37,6 @@ public class Main extends PApplet {
 
 	public static void benchmark(String id) {
 		long dif = System.nanoTime() - bm;
-		Globals.gui.log(id + ": " + (double) dif / 1000000);
 		System.out.println(id + ": " + (double) dif / 1000000);
 	}
 
@@ -74,8 +73,7 @@ public class Main extends PApplet {
 		}
 	}
 
-	// Shifts coordinates of rendered blocks, used when the player loops over the
-	// edge of the map
+	// Shifts coordinates of rendered blocks, used when the player loops over the edge of the map
 	public void shiftRenderList(int x, int y, int z) {
 		for (BlockPos pos : renderList) {
 			pos.x += x;
@@ -94,7 +92,9 @@ public class Main extends PApplet {
 				Globals.add(new GUI(this));
 				setupRenderList();
 			}
+			bmStart();
 			runGame();
+			benchmark("run");
 		}
 	}
 
@@ -136,9 +136,8 @@ public class Main extends PApplet {
 			for (Iterator<BlockPos> iterator = renderList.iterator(); iterator.hasNext();) {
 				BlockPos pos = iterator.next();
 				// Remove blocks from the render list if they fall out of range
-				int dist = Math.abs(pos.x - Globals.floor(player.getX()))
-						+ Math.abs(pos.y - Globals.floor(player.getY()))
-						+ Math.abs(pos.z - Globals.floor(player.getZ()));
+				int dist = Math.abs(pos.x - (int) (player.getX() + 0.0)) + Math.abs(pos.y - (int) (player.getY() + 0.0))
+						+ Math.abs(pos.z - (int) (player.getZ() + 0.0));
 				Block b = world.getBlock(pos.x, pos.y, pos.z);
 				if (dist <= REND_DIST && b.isVisible) {
 					b.draw(pos.x, pos.y, pos.z);
@@ -149,16 +148,9 @@ public class Main extends PApplet {
 				}
 			}
 			popMatrix();
-		} else {
-			if (!mouseVisible) {
-				cursor();
-				mouseVisible = true;
-			}
-			// Adds the blocks to be rendered even when the gui state isn't at game
-			// This prevents motion while in a menu from causing rendering bugs
-			for (int i = 0; i < 3; i++) {
-				addRenderBlocks(REND_DIST - i);
-			}
+		} else if (!mouseVisible) {
+			cursor();
+			mouseVisible = true;
 		}
 		Globals.gui.doGUI();
 		Globals.gui.drawGUI();
@@ -170,9 +162,9 @@ public class Main extends PApplet {
 			for (int y = -dist; y <= dist; y++) {
 				int z = dist - (Math.abs(x) + Math.abs(y));
 				for (int i = 0; i < 2; i++) {
-					int rx = x + Globals.floor(player.getX());
-					int ry = y + Globals.floor(player.getY());
-					int rz = z + Globals.floor(player.getZ());
+					int rx = x + (int) (player.getX() + 0.0);
+					int ry = y + (int) (player.getY() + 0.0);
+					int rz = z + (int) (player.getZ() + 0.0);
 					Block b = world.getBlock(rx, ry, rz);
 					if (b.isVisible) {
 						addRenderBlock(new BlockPos(rx, ry, rz));

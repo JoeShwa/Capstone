@@ -6,7 +6,6 @@ import Items.Item;
 
 public class Player {
 
-	// Player position, velocities, and rotation
 	private double x;
 	private double y;
 	private double z;
@@ -17,24 +16,26 @@ public class Player {
 	private double pitch;
 	double yawV;
 	double pitchV;
+<<<<<<< HEAD
 	// Player's internal inventory
+=======
+	static int[][] dirs = { { 0, 0, -1 }, { 0, 0, 1 }, { 1, 0, 0 }, { -1, 0, 0 }, { 0, -1, 0 }, { 0, 1, 0 } };
+>>>>>>> parent of 05e034c... Pre lighting rework backup
 	Inventory inventory;
-	// Items that have been discovered
-	Inventory research;
-	// Selected item
 	Item selItem;
-	// Keyboard input
 	boolean[] input;
-	// Player reach length
 	static final int REACH = 7;
-	// Scan step for detecting blocks in front of player
 	static final double SCAN_STEP = 0.1;
-	// Player jump strength
 	static final double JUMP = 0.3;
-	// Whether the player can mine or not
 	public boolean canMine = true;
-	// How long until the player can mine
 	int mineCool = 0;
+
+	private double mod(double n1, double n2) {
+		if (n1 < 0) {
+			n1 += n2;
+		}
+		return n1 % n2;
+	}
 
 	public Player(boolean[] input) {
 		yaw = 0;
@@ -60,7 +61,6 @@ public class Player {
 			}
 		}
 		inventory = new Inventory(50);
-		research = new Inventory(Integer.MAX_VALUE);
 	}
 
 	public void leftClick() {
@@ -93,8 +93,6 @@ public class Player {
 			Item[] items = inventory.getItems();
 			if (ind > -1 && ind < items.length) {
 				selItem = items[ind];
-			} else {
-				selItem = null;
 			}
 			break;
 		}
@@ -138,7 +136,7 @@ public class Player {
 			rx += rxv;
 			ry += ryv;
 			rz += rzv;
-			if (Globals.world.getBlock(rx, ry, rz).isBreakable()) {
+			if (Globals.world.getBlock((int) rx, (int) ry, (int) rz).isBreakable()) {
 				hitBlock = true;
 				dist = REACH;
 			}
@@ -149,7 +147,7 @@ public class Player {
 			rz -= rzv;
 		}
 		if (hitBlock) {
-			int[] out = { Globals.floor(rx), Globals.floor(ry), Globals.floor(rz) };
+			int[] out = { (int) rx, (int) ry, (int) rz };
 			return out;
 		}
 		return null;
@@ -166,7 +164,6 @@ public class Player {
 		x += xv;
 		y += yv;
 		z += zv;
-		wrapPos();
 		// Bounces player back on collision
 		int bestC = 4;
 		int bI = 0;
@@ -195,7 +192,6 @@ public class Player {
 			bI = 1;
 			bJ = 1;
 			bK = 1;
-			Globals.gui.log("Collision error. Accomodating as possible.");
 		}
 		x -= xv * bI;
 		y -= yv * bJ;
@@ -253,31 +249,26 @@ public class Player {
 				zvc += speed * Math.sin(yaw + Math.toRadians(90));
 			}
 			if (m.input[' ']) {
-				yvc = -0.02;
+				yvc = -JUMP * bJ;
 			}
 			xv += xvc;
-			yv += yvc;
+			yv += yvc + World.GRAVITY;
 			zv += zvc;
 		}
-		yv += World.GRAVITY;
+		double oldX = x;
+		double oldY = y;
+		double oldZ = z;
+		x = mod(x, Globals.world.sizeX());
+		y = mod(y, Globals.world.sizeY());
+		z = mod(z, Globals.world.sizeZ());
+		if (oldX != x || oldY != y || oldZ != z) {
+			Globals.main.shiftRenderList((int) (x - oldX), (int) (y - oldY), (int) (z - oldZ));
+		}
 		if (mineCool > 0) {
 			mineCool--;
 			canMine = false;
 		} else {
 			canMine = true;
-		}
-	}
-
-	// Wraps the player's position around the world
-	public void wrapPos() {
-		double oldX = x;
-		double oldY = y;
-		double oldZ = z;
-		x = Globals.mod(x, Globals.world.sizeX());
-		y = Globals.mod(y, Globals.world.sizeY());
-		z = Globals.mod(z, Globals.world.sizeZ());
-		if (oldX != x || oldY != y || oldZ != z) {
-			Globals.main.shiftRenderList((int) (x - oldX), (int) (y - oldY), (int) (z - oldZ));
 		}
 	}
 
@@ -290,7 +281,7 @@ public class Player {
 					double bx = x - 0.4 + (double) i * 0.8;
 					double by = y - 0.4 + (double) j * 0.8;
 					double bz = z - 0.4 + (double) k * 0.8;
-					Block block = Globals.world.getBlock(Globals.floor(bx), Globals.floor(by), Globals.floor(bz));
+					Block block = Globals.world.getBlock((int) bx, (int) by, (int) bz);
 					if (block.isSolid()) {
 						collide = true;
 					}
