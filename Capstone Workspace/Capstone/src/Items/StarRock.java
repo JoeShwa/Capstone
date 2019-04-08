@@ -8,11 +8,12 @@ public class StarRock extends Item {
 	static PImage tex = p.loadImage("textures/starrock.png");
 
 	public String getName() {
-		return "StarRock";
+		return "Star Rock";
 	}
-	
+
 	public String getLore() {
-		return "In a flux-state between dark matter and normal matter, its composition is unknown, but it appears to harness the energy of distant stars to produce small amounts of light.";
+		return "Rock infused with extra-dimensional energies. It appears to harness the energy of distant stars to produce small amounts of light.\n\n"
+				+ "If energized, it may release more than just light.";
 	}
 
 	public void draw(int x, int y) {

@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import Blocks.Block;
+import Entities.Entity;
 import Events.EventManager;
 import Items.Item;
 import processing.core.PApplet;
@@ -110,6 +111,40 @@ public class Main extends PApplet {
 		rect(0, height / 2, gen.phase * width / World.DIM_COUNT, 100);
 	}
 
+	public void updateEntities() {
+		LinkedList<Entity> entities = world.getEntities();
+		for (Iterator<Entity> iter = entities.iterator(); iter.hasNext();) {
+			Entity entity = iter.next();
+			entity.update();
+		}
+	}
+
+	public void drawEntities() {
+		LinkedList<Entity> entities = world.getEntities(Globals.floor(Globals.player.getX()),
+				Globals.floor(Globals.player.getY()), Globals.floor(Globals.player.getZ()), 6);
+		for (Iterator<Entity> iter = entities.iterator(); iter.hasNext();) {
+			Entity entity = iter.next();
+			entity.draw();
+		}
+	}
+
+	public void drawBlocks() {
+		for (Iterator<BlockPos> iterator = renderList.iterator(); iterator.hasNext();) {
+			BlockPos pos = iterator.next();
+			// Remove blocks from the render list if they fall out of range
+			int dist = Math.abs(pos.x - Globals.floor(player.getX())) + Math.abs(pos.y - Globals.floor(player.getY()))
+					+ Math.abs(pos.z - Globals.floor(player.getZ()));
+			Block b = world.getBlock(pos.x, pos.y, pos.z);
+			if (dist <= REND_DIST && b.isVisible) {
+				b.draw(pos.x, pos.y, pos.z);
+			} else {
+				// Remove block from draw list if it shouldn't be drawn
+				iterator.remove();
+				b.isDrawn = false;
+			}
+		}
+	}
+
 	public void runGame() {
 		EventManager.runEvents();
 		if (mousePressed && mouseCooldown < 1) {
@@ -118,6 +153,7 @@ public class Main extends PApplet {
 		mouseCooldown--;
 		noStroke();
 		player.move(this);
+		updateEntities();
 		if (Globals.gui.guiState == GUI.GAME) {
 			if (mouseVisible) {
 				noCursor();
@@ -132,23 +168,9 @@ public class Main extends PApplet {
 			for (int i = 0; i < 3; i++) {
 				addRenderBlocks(REND_DIST - i);
 			}
-			// Draws the blocks
 			background(0);
-			for (Iterator<BlockPos> iterator = renderList.iterator(); iterator.hasNext();) {
-				BlockPos pos = iterator.next();
-				// Remove blocks from the render list if they fall out of range
-				int dist = Math.abs(pos.x - Globals.floor(player.getX()))
-						+ Math.abs(pos.y - Globals.floor(player.getY()))
-						+ Math.abs(pos.z - Globals.floor(player.getZ()));
-				Block b = world.getBlock(pos.x, pos.y, pos.z);
-				if (dist <= REND_DIST && b.isVisible) {
-					b.draw(pos.x, pos.y, pos.z);
-				} else {
-					// Remove block from draw list if it shouldn't be drawn
-					iterator.remove();
-					b.isDrawn = false;
-				}
-			}
+			drawBlocks();
+			drawEntities();
 			popMatrix();
 		} else {
 			if (!mouseVisible) {
@@ -216,6 +238,10 @@ public class Main extends PApplet {
 	public void keyPressed() {
 		if (key < 256) {
 			input[key] = true;
+		}
+		// Stops the window from closing on ESC pressed (ESC == 27)
+		if (key == ESC) {
+			// key = 0;
 		}
 	}
 

@@ -22,6 +22,10 @@ public class Inventory {
 		content.values().toArray(out);
 		return out;
 	}
+	
+	public boolean hasItem(String name) {
+		return content.containsKey(name);
+	}
 
 	public boolean useItem(String name, int amt) {
 		Item item = content.get(name);

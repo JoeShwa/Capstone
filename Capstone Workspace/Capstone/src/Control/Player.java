@@ -53,7 +53,6 @@ public class Player {
 		while (check()) {
 			x = Globals.world.sizeX() * Math.random();
 			y = Globals.world.sizeY() - 1;
-			y = 100;
 			z = Globals.world.sizeZ() * Math.random();
 			int count = 0;
 			while (count < 75 && check()) {
@@ -65,6 +64,14 @@ public class Player {
 		research = new Inventory(Integer.MAX_VALUE);
 	}
 
+	public void research(Item item) {
+		item.amount = 0;
+		if(!research.hasItem(item.getName())) {
+			Globals.gui.log("New item discovered: " + item.getName());
+		}
+		research.addItem(item);
+	}
+	
 	public void leftClick() {
 		boolean didClick = true;
 		switch (Globals.gui.guiState) {
@@ -78,6 +85,7 @@ public class Player {
 					mineCool = b.getHardness();
 					if (mineCool > 0) {
 						inventory.addItem(b.getItem());
+						research(b.getItem());
 						Globals.world.breakBlock(hit[0], hit[1], hit[2]);
 						// Pushes an event to try to mine again when possible, allowing the player to
 						// hold left click
@@ -97,6 +105,15 @@ public class Player {
 				selItem = items[ind];
 			} else {
 				selItem = null;
+			}
+			break;
+		case GUI.RESEARCH:
+			x = (Globals.p.mouseX) / 256;
+			y = (Globals.p.mouseY - 28) / 256;
+			ind = x + y * Inventory.REND_X;
+			items = research.getItems();
+			if (ind > -1 && ind < items.length) {
+				Globals.gui.showResearch(items[ind]);
 			}
 			break;
 		}
@@ -255,7 +272,7 @@ public class Player {
 				zvc += speed * Math.sin(yaw + Math.toRadians(90));
 			}
 			if (m.input[' ']) {
-				yvc = -0.02;
+				yvc = -JUMP * bJ;
 			}
 			xv += xvc;
 			yv += yvc;

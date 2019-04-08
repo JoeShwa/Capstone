@@ -18,7 +18,7 @@ public abstract class Block implements Blocks {
 	public boolean isVisible;
 	static World world;
 	public short light;
-	static final int AMBIENCE = 75;
+	static final int AMBIENCE = 50;
 	public static final int BIGGEST_LIGHT = 8;
 	public boolean isDrawn;
 

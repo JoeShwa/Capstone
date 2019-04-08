@@ -25,7 +25,6 @@ public abstract class LightBlock extends Block {
 	}
 
 	public void breakLight(int x, int y, int z, int brightness) {
-		Main.bmStart();
 		for (int lx = -brightness; lx < brightness + 1; lx++) {
 			for (int ly = -brightness; ly < brightness + 1; ly++) {
 				for (int lz = -brightness; lz < brightness + 1; lz++) {
@@ -50,7 +49,6 @@ public abstract class LightBlock extends Block {
 				}
 			}
 		}
-		Main.benchmark("break");
 	}
 	
 	public void placeEvent(int x, int y, int z, Block prev) {

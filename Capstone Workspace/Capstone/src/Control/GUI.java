@@ -17,12 +17,15 @@ public class GUI {
 	public static final int GAME = 0;
 	public static final int INVENTORY = 1;
 	public static final int RESEARCH = 2;
+	public static final int RES_ITEM = 3;
 	public int guiState = GAME;
 	// Prevents unintentional spam-switching of GUI state
 	boolean[] prevC;
 	boolean canSwitchState = true;
 	// Holds data logged on screen
 	LinkedList<Log> logs;
+	// Item to be shown in research
+	Item resItem;
 
 	public GUI(PApplet p) {
 		GUI.p = p;
@@ -96,7 +99,7 @@ public class GUI {
 			break;
 		case RESEARCH:
 			p.background(0);
-			Item[] res = Globals.player.inventory.getItems();
+			Item[] res = Globals.player.research.getItems();
 			if (res.length > 0) {
 				for (int i = 0; i < Inventory.REND_X; i++) {
 					for (int j = 0; j < Inventory.REND_Y; j++) {
@@ -110,14 +113,26 @@ public class GUI {
 				}
 			}
 			break;
+		case RES_ITEM:
+			p.background(0);
+			resItem.draw(0, 0);
+			p.fill(255);
+			p.textSize(64);
+			p.text(resItem.getName(), p.width / 2, 128);
+			p.textSize(32);
+			p.text(resItem.getLore(), 240, p.height / 2 - 256, 1440, 512);
+			break;
 		}
 		// Draw text log
 		int y = 60;
 		p.textSize(24);
+		p.noStroke();
 		for (Iterator<Log> iter = logs.descendingIterator(); iter.hasNext();) {
 			Log log = iter.next();
-			p.fill(255, 255, 255, log.getAlpha());
+			p.fill(0, 0, 0, log.getAlpha() / 3);
 			int height = (int) Math.max(64 * p.textWidth(log.msg) / 400, 48);
+			p.rect(1500, y, 400, height);
+			p.fill(255, 255, 255, log.getAlpha());
 			p.text(log.msg, 1500, y, 400, height);
 			y += height;
 		}
@@ -158,7 +173,7 @@ public class GUI {
 		case INVENTORY:
 			break;
 		case RESEARCH:
-
+			
 			break;
 		}
 		// Update text log decay
@@ -171,4 +186,8 @@ public class GUI {
 		}
 	}
 
+	public void showResearch(Item item) {
+		resItem = item;
+		guiState = RES_ITEM;
+	}
 }
