@@ -24,11 +24,6 @@ public class StarRock extends LightBlock {
 		lightArea(x, y, z, getBrightness());
 	}
 
-	public void breakEvent(int x, int y, int z) {
-		super.breakEvent(x, y, z);
-		breakLight(x, y, z, getBrightness());
-	}
-
 	public int getHardness() {
 		return 30;
 	}

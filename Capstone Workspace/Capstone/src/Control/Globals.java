@@ -1,14 +1,31 @@
 package Control;
 
+import Blocks.Block;
 import processing.core.PApplet;
 
 public class Globals {
 	
+	// Accessible objects for everyone
 	public static Main main;
 	public static PApplet p;
 	public static Player player;
 	public static World world;
 	public static GUI gui;
+	// Pre-calculated commonly used sqrts for efficiency
+	static double[] sqrts;
+	
+	public static double sqrt(int a) {
+		return sqrts[a];
+	}
+	
+	public static void initSqrts() {
+		int num = Block.BIGGEST_LIGHT * 2 + 1;
+		num *= num;
+		sqrts = new double[num * 3];
+		for(int i = 0; i < sqrts.length; i++) {
+			sqrts[i] = Math.sqrt(i);
+		}
+	}
 	
 	public static int mod(int a, int b) {
 		if(a > 0) {

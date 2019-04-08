@@ -64,6 +64,8 @@ public class Main extends PApplet {
 		gen.start();
 		// Create the event manager
 		EventManager.init(this);
+		// Pre-calculate common sqrts
+		Globals.initSqrts();
 	}
 
 	// Initializes render list with initially visible blocks

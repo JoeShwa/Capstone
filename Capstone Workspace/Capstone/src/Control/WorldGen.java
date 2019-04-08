@@ -64,8 +64,8 @@ public class WorldGen extends Thread {
 				}
 				int tx = x;
 				int tz = z;
-				if (Math.random() < 0.02) {
-					while (Math.random() < 0.9) {
+				if (Math.random() < 0.01) {
+					while (Math.random() < 0.8) {
 						y--;
 						if (Math.random() < 0.3) {
 							if (Math.random() > 0.5) {
