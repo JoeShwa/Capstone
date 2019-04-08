@@ -12,6 +12,12 @@ import processing.core.PApplet;
 
 public class Main extends PApplet {
 
+	// ----------------------------------------------------
+	// Current problem: Entities not rendering on other side of world with loop,
+	// possible cause being it tries to render the entity at its true position, and
+	// not the nearest loop position
+	// ----------------------------------------------------
+
 	// Tells the library to use this class as the main class
 	public static void main(String args[]) {
 		PApplet.main("Control.Main");
@@ -112,14 +118,14 @@ public class Main extends PApplet {
 	}
 
 	public void updateEntities() {
-		for(int x = 0; x < world.sizeX() / World.SUBDIV; x++) {
-			for(int y = 0; y < world.sizeY() / World.SUBDIV; y++) {
-				for(int z = 0; z < world.sizeZ() / World.SUBDIV; z++) {
+		for (int x = 0; x < world.sizeX() / World.SUBDIV; x++) {
+			for (int y = 0; y < world.sizeY() / World.SUBDIV; y++) {
+				for (int z = 0; z < world.sizeZ() / World.SUBDIV; z++) {
 					LinkedList<Entity> entities = world.getEntities(x, y, z);
 					for (Iterator<Entity> iter = entities.iterator(); iter.hasNext();) {
 						Entity entity = iter.next();
 						entity.update();
-						if(entity.isDead) {
+						if (entity.isDead) {
 							iter.remove();
 						}
 					}
