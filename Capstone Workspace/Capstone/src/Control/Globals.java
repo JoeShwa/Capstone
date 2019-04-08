@@ -9,7 +9,14 @@ public class Globals {
 	public static Player player;
 	public static World world;
 	public static GUI gui;
-	
+	// Replacement for frameCount to work properly
+	public static int gameTime;
+	// Used to loop through all 6 directions
+	public static final int[][] dirs = { { 0, 0, -1 }, { 0, 0, 1 }, { 1, 0, 0 }, { -1, 0, 0 }, { 0, -1, 0 }, { 0, 1, 0 } };
+	// Default ambiance without any light
+	public static final int AMBIANCE = 75;
+	// Size of the largest light
+	public static final int BIGGEST_LIGHT = 8;
 	public static int mod(int a, int b) {
 		if(a > 0) {
 			return a % b;

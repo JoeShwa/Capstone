@@ -5,7 +5,7 @@ import Blocks.*;
 public class WorldGen extends Thread {
 
 	World world;
-	int phase = 0;
+	public int phase = 0;
 	static final int CAVES = 20;
 	static final int CAVE_LEN = 30;
 	static final int CAVE_RAD = 5;
@@ -81,7 +81,7 @@ public class WorldGen extends Thread {
 								tz--;
 							}
 						}
-						world.setBlock(tx, y, tz, new Crystal());
+						//world.setBlock(tx, y, tz, new Crystal());
 					}
 				}
 			}

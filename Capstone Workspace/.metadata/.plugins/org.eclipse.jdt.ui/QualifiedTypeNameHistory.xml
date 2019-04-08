@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <qualifiedTypeNameHistroy>
     <fullyQualifiedTypeName name="processing.core.PImage"/>
-    <fullyQualifiedTypeName name="Control.Globals"/>
     <fullyQualifiedTypeName name="java.util.LinkedList"/>
     <fullyQualifiedTypeName name="java.util.Iterator"/>
     <fullyQualifiedTypeName name="java.util.Stack"/>
+    <fullyQualifiedTypeName name="Blocks.LightBlock"/>
+    <fullyQualifiedTypeName name="Blocks.Block"/>
+    <fullyQualifiedTypeName name="Events.EventManager"/>
+    <fullyQualifiedTypeName name="Control.BlockPos"/>
+    <fullyQualifiedTypeName name="Events.LightEvent"/>
+    <fullyQualifiedTypeName name="Blocks.Air"/>
+    <fullyQualifiedTypeName name="Control.Globals"/>
 </qualifiedTypeNameHistroy>

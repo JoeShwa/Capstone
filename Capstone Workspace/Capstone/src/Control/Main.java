@@ -27,7 +27,7 @@ public class Main extends PApplet {
 	World world;
 	Player player;
 	boolean[] input;
-	WorldGen gen;
+	public WorldGen gen;
 	static int[][] dirs = { { 0, 0, -1 }, { 0, 0, 1 }, { 1, 0, 0 }, { -1, 0, 0 }, { 0, -1, 0 }, { 0, 1, 0 } };
 	boolean mouseVisible = true;
 	int mouseCooldown = 0;
@@ -109,6 +109,7 @@ public class Main extends PApplet {
 	}
 
 	public void runGame() {
+		Globals.gameTime++;
 		EventManager.runEvents();
 		if (mousePressed && mouseCooldown < 1) {
 			mousePressed();

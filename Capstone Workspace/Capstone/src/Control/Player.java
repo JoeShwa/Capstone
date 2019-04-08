@@ -17,8 +17,6 @@ public class Player {
 	private double pitch;
 	double yawV;
 	double pitchV;
-	// Used to loop through all 6 directions
-	static int[][] dirs = { { 0, 0, -1 }, { 0, 0, 1 }, { 1, 0, 0 }, { -1, 0, 0 }, { 0, -1, 0 }, { 0, 1, 0 } };
 	// Player's internal inventory
 	Inventory inventory;
 	// Items that have been discovered
@@ -53,7 +51,7 @@ public class Player {
 		while (check()) {
 			x = Globals.world.sizeX() * Math.random();
 			y = Globals.world.sizeY() - 1;
-			y = 100;
+			//y = 100;
 			z = Globals.world.sizeZ() * Math.random();
 			int count = 0;
 			while (count < 75 && check()) {

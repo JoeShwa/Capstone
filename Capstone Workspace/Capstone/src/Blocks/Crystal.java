@@ -8,8 +8,8 @@ public class Crystal extends LightBlock {
 	
 	static PImage tex = Globals.p.loadImage("textures/crystal.png");
 
-	public int getBrightness() {
-		return 8;
+	public short getBrightness() {
+		return 5000;
 	}
 	
 	public boolean isTrans() {
