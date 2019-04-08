@@ -7,8 +7,8 @@ public class StarRock extends LightBlock {
 
 	static PImage tex = p.loadImage("textures/starrock.png");
 
-	public short getBrightness() {
-		return 32767;
+	public int getBrightness() {
+		return 4;
 	}
 
 	public Item getItem() {

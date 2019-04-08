@@ -26,6 +26,7 @@ public abstract class Item implements Items {
 		x *= 256;
 		y *= 256;
 		y += 28;
+		// Draw the texture
 		p.beginShape();
 		p.noTint();
 		p.texture(tex);
@@ -34,8 +35,11 @@ public abstract class Item implements Items {
 		p.vertex(x + 256, y + 256, 1, 1);
 		p.vertex(x + 256, y, 1, 0);
 		p.endShape();
-		p.fill(255);
-		p.textSize(32);
-		p.text(amount, x + 64, y + 222);
+		// Display the amount if necessary
+		if (amount > 0) {
+			p.fill(255);
+			p.textSize(32);
+			p.text(amount, x + 64, y + 222);
+		}
 	}
 }

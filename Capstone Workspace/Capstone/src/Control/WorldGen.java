@@ -5,7 +5,7 @@ import Blocks.*;
 public class WorldGen extends Thread {
 
 	World world;
-	public int phase = 0;
+	int phase = 0;
 	static final int CAVES = 20;
 	static final int CAVE_LEN = 30;
 	static final int CAVE_RAD = 5;
@@ -62,7 +62,6 @@ public class WorldGen extends Thread {
 				for (y = maxY; y > height; y--) {
 					world.setBlock(x, y, z, new Sludge());
 				}
-				y -= 5;
 				int tx = x;
 				int tz = z;
 				if (Math.random() < 0.02) {
@@ -82,7 +81,7 @@ public class WorldGen extends Thread {
 								tz--;
 							}
 						}
-						//world.setBlock(tx, y, tz, new Crystal());
+						world.setBlock(tx, y, tz, new Crystal());
 					}
 				}
 			}

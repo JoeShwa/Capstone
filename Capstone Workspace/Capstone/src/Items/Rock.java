@@ -10,6 +10,10 @@ public class Rock extends Item {
 	public String getName() {
 		return "Rock";
 	}
+	
+	public String getLore() {
+		return "Mostly just basic metamorphic rock, with no special properties.";
+	}
 
 	public Block getBlock() {
 		return new Blocks.Rock();

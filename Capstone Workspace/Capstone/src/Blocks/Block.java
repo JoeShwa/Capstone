@@ -18,6 +18,8 @@ public abstract class Block implements Blocks {
 	public boolean isVisible;
 	static World world;
 	public short light;
+	static final int AMBIENCE = 75;
+	static final int BIGGEST_LIGHT = 8;
 	public boolean isDrawn;
 
 	public boolean isLight() {
@@ -33,7 +35,7 @@ public abstract class Block implements Blocks {
 	}
 
 	public void placeEvent(int x, int y, int z, Block prev) {
-		this.light = (short) Math.max(Globals.AMBIANCE, prev.light);
+		this.light = (short) Math.max(AMBIENCE, prev.light);
 		isDrawn = prev.isDrawn;
 		updateFaces(x, y, z);
 		for (int i = 0; i < dirs.length; i++) {
@@ -85,7 +87,7 @@ public abstract class Block implements Blocks {
 					p.beginShape(PConstants.QUADS);
 					p.texture(tex);
 					p.textureMode(PConstants.NORMAL);
-					p.tint(Math.min(light, 255));
+					p.tint(light);
 					for (int j = 0; j < 4; j++) {
 						PVector vec = sh.getVertex(i * 4 + j);
 						float mapX;
