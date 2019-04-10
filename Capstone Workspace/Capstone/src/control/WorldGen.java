@@ -6,7 +6,7 @@ public class WorldGen extends Thread {
 
 	World world;
 	int phase = 0;
-	static final int CAVES = 30;
+	static final int CAVES = 25;
 	static final int CAVE_LEN = 40;
 	static final int CAVE_RAD = 7;
 

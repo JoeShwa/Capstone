@@ -1,5 +1,7 @@
 package blocks;
 
+import java.util.Random;
+
 import control.BlockPos;
 import control.Globals;
 import control.World;
@@ -21,6 +23,9 @@ public abstract class Block implements Blocks {
 	static final int AMBIENCE = 50;
 	public static final int BIGGEST_LIGHT = 8;
 	public boolean isDrawn;
+	
+	
+	public static Random rand;
 
 	public boolean isLight() {
 		return false;
@@ -32,6 +37,8 @@ public abstract class Block implements Blocks {
 		sh = p.createShape(PConstants.BOX, 100);
 		// I don't know why this needs to be here, but it breaks without it
 		sh.getVertexCount();
+		
+		rand = new Random();
 	}
 
 	public void placeEvent(int x, int y, int z, Block prev) {
@@ -70,7 +77,7 @@ public abstract class Block implements Blocks {
 				faces[i] = false;
 			}
 		}
-		if(isVisible) {
+		if(isVisible && !isDrawn) {
 			Globals.main.addRenderBlock(new BlockPos(x, y, z));
 		}
 	}

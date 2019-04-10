@@ -8,8 +8,12 @@
     <fullyQualifiedTypeName name="Control.World"/>
     <fullyQualifiedTypeName name="processing.opengl.PJOGL"/>
     <fullyQualifiedTypeName name="Control.Globals"/>
+    <fullyQualifiedTypeName name="processing.core.PImage"/>
     <fullyQualifiedTypeName name="parts.Part"/>
     <fullyQualifiedTypeName name="items.Tool"/>
     <fullyQualifiedTypeName name="control.Globals"/>
-    <fullyQualifiedTypeName name="processing.core.PImage"/>
+    <fullyQualifiedTypeName name="events.PartMotionEvent"/>
+    <fullyQualifiedTypeName name="events.EventManager"/>
+    <fullyQualifiedTypeName name="java.util.Random"/>
+    <fullyQualifiedTypeName name="blocks.Air"/>
 </qualifiedTypeNameHistroy>

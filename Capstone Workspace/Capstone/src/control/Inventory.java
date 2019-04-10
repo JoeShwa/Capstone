@@ -23,7 +23,21 @@ public class Inventory {
 		content.values().toArray(out);
 		return out;
 	}
-	
+
+	public int getSize() {
+		return size;
+	}
+
+	public int getMaxSize() {
+		return maxSize;
+	}
+
+	// Returns how full the inventory is compared to its max capacity, on a scale of
+	// 0 to 1
+	public double getFullness() {
+		return (double) size / maxSize;
+	}
+
 	public boolean hasItem(String name) {
 		return content.containsKey(name);
 	}
@@ -32,6 +46,7 @@ public class Inventory {
 		Item item = content.get(name);
 		if (item.amount >= amt) {
 			item.amount -= amt;
+			size -= amt;
 			if (item.amount < 1) {
 				content.remove(name);
 			}
@@ -49,6 +64,7 @@ public class Inventory {
 		} else {
 			content.put(item.getName(), item);
 		}
+		size += item.amount;
 		return true;
 	}
 }

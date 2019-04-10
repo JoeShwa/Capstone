@@ -37,6 +37,8 @@ public class Player {
 	static final double JUMP = 0.3;
 	// Player run speed
 	static final double SPEED = 0.05;
+	// Disables rotation smoothing
+	static final boolean INSTANT_ROTATION = true;
 	// Whether the player can mine or not
 	public boolean canMine = true;
 	// How long until the player can minew
@@ -71,12 +73,12 @@ public class Player {
 
 	public void research(Item item) {
 		item.amount = 0;
-		if(!research.hasItem(item.getName())) {
+		if (!research.hasItem(item.getName())) {
 			Globals.gui.log("New item discovered: " + item.getName());
 		}
 		research.addItem(item);
 	}
-	
+
 	public void leftClick() {
 		boolean didClick = true;
 		switch (Globals.gui.guiState) {
@@ -89,12 +91,15 @@ public class Player {
 					Block b = Globals.world.getBlock(hit[0], hit[1], hit[2]);
 					mineCool = b.getHardness();
 					if (mineCool > 0) {
-						inventory.addItem(b.getItem());
-						research(b.getItem());
-						Globals.world.breakBlock(hit[0], hit[1], hit[2]);
-						// Pushes an event to try to mine again when possible, allowing the player to
-						// hold left click
-						EventManager.addEvent(new events.MineEvent(this, EventManager.m), mineCool + 2);
+						if (inventory.addItem(b.getItem())) {
+							research(b.getItem());
+							Globals.world.breakBlock(hit[0], hit[1], hit[2]);
+							// Pushes an event to try to mine again when possible, allowing the player to
+							// hold left click
+							EventManager.addEvent(new events.MineEvent(this, EventManager.m), mineCool + 2);
+						} else {
+							Globals.gui.log("Not enough space in inventory!");
+						}
 					}
 				}
 			} else {
@@ -141,6 +146,11 @@ public class Player {
 					if (selItem.amount == 0) {
 						selItem = null;
 					}
+				}
+				if(check()) {
+					Globals.gui.log("You can't place a block where you exist!");
+					inventory.addItem(Globals.world.getBlock(hit[0], hit[1], hit[2]).getItem());
+					Globals.world.breakBlock(hit[0], hit[1], hit[2]);
 				}
 			} else {
 				double xv = Math.cos(yaw) * Math.cos(pitch);
@@ -190,6 +200,12 @@ public class Player {
 			yawV += Math.toRadians(m.mouseX - m.width / 2) * Main.MOUSE_SENSITIVITY;
 			pitchV += Math.toRadians(m.mouseY - m.height / 2) * Main.MOUSE_SENSITIVITY;
 			m.r.mouseMove(m.width / 2, m.height / 2);
+			if(INSTANT_ROTATION) {
+				yaw += yawV * 1.5;
+				pitch += pitchV * 1.5;
+				yawV = 0;
+				pitchV = 0;
+			}
 		}
 		// Moves player
 		x += xv;
@@ -224,7 +240,7 @@ public class Player {
 			bI = 1;
 			bJ = 1;
 			bK = 1;
-			Globals.gui.log("Collision error. Accomodating as possible.");
+			//Globals.gui.log("Collision error. Accomodating as possible.");
 		}
 		x -= xv * bI;
 		y -= yv * bJ;

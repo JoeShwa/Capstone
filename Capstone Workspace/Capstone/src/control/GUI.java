@@ -82,6 +82,7 @@ public class GUI {
 			}
 			break;
 		case INVENTORY:
+			p.noStroke();
 			p.background(0);
 			Item[] inv = Globals.player.inventory.getItems();
 			if (inv.length > 0) {
@@ -96,6 +97,9 @@ public class GUI {
 					}
 				}
 			}
+			double fullness = Globals.player.inventory.getFullness() * p.width;
+			p.fill(70, 70, 255);
+			p.rect(0, 0, (float) fullness, 27);
 			break;
 		case RESEARCH:
 			p.background(0);

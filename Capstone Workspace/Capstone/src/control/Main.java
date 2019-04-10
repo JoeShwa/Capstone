@@ -4,6 +4,7 @@ import java.awt.Robot;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import blocks.Air;
 import blocks.Block;
 import entities.Entity;
 import events.EventManager;
@@ -17,7 +18,7 @@ public class Main extends PApplet {
 	// ----------------------------------------------------
 	// ----------------------------------------------------
 
-	static final int REND_DIST = 30;
+	static final int REND_DIST = 25;
 	static final double MOUSE_SENSITIVITY = 0.3;
 	Robot r;
 	World world;
@@ -146,13 +147,14 @@ public class Main extends PApplet {
 	}
 
 	public void drawBlocks() {
+		Block.rand.setSeed(0);
 		for (Iterator<BlockPos> iterator = renderList.iterator(); iterator.hasNext();) {
 			BlockPos pos = iterator.next();
 			// Remove blocks from the render list if they fall out of range
 			int dist = Math.abs(pos.x - Globals.floor(player.getX())) + Math.abs(pos.y - Globals.floor(player.getY()))
 					+ Math.abs(pos.z - Globals.floor(player.getZ()));
 			Block b = world.getBlock(pos.x, pos.y, pos.z);
-			if (dist <= REND_DIST && b.isVisible) {
+			if (dist <= REND_DIST && b.isVisible && !(b instanceof Air)) {
 				b.draw(pos.x, pos.y, pos.z);
 			} else {
 				// Remove block from draw list if it shouldn't be drawn
@@ -214,7 +216,7 @@ public class Main extends PApplet {
 					int ry = y + Globals.floor(player.getY());
 					int rz = z + Globals.floor(player.getZ());
 					Block b = world.getBlock(rx, ry, rz);
-					if (b.isVisible) {
+					if (b.isVisible && !(b instanceof Air)) {
 						addRenderBlock(new BlockPos(rx, ry, rz));
 					}
 					z *= -1;

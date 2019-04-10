@@ -17,17 +17,21 @@ public class Tool extends Item {
 				int rand = (int) (Math.random() * 3);
 				switch (rand) {
 				case 0:
-					parts[x][y] = new parts.Rock();
+					parts[x][y] = new parts.Rock(x, y);
 					break;
 				case 1:
-					parts[x][y] = new parts.Air();
+					parts[x][y] = new parts.Air(x, y);
 					break;
 				case 2:
-					parts[x][y] = new parts.StarRock();
+					parts[x][y] = new parts.StarRock(x, y);
 					break;
 				}
 			}
 		}
+	}
+	
+	public Part getPart(int x, int y) {
+		return parts[x][y];
 	}
 
 	public String getName() {
@@ -51,7 +55,7 @@ public class Tool extends Item {
 		// Draw each part
 		for (int px = 0; px < parts.length; px++) {
 			for (int py = 0; py < parts[0].length; py++) {
-				Part part = parts[px][py];
+				Part part = getPart(px, py);
 				if (part == null) {
 					Globals.p.fill(0);
 				} else {
