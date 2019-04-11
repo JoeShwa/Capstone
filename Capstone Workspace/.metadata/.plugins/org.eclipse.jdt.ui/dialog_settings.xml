@@ -3,6 +3,24 @@
 	<item key="org.eclipse.jdt.ui.last.selected.execution.enviroment" value="JavaSE-1.8"/>
 	<item key="org.eclipse.jdt.ui.lastextjar" value="C:\Users\miner\Desktop\processing-3.5.3\core\library"/>
 	<item key="filters_last_used" value="filter_imports;"/>
+	<item key="org.eclipse.jdt.uicleanup_pagemodify_dialog.last_focus" value="4"/>
+	<item key="org.eclipse.jdt.uiformatter_page.modify_dialog_tab_page.last_focus_index" value="1"/>
+	<item key="org.eclipse.jdt.uicleanup_pagemodify_dialog.preferred_width" value="887"/>
+	<item key="org.eclipse.jdt.uicleanup_pagemodify_dialog.preferred_height" value="759"/>
+	<item key="org.eclipse.jdt.uicleanup_pagemodify_dialog.preferred_x" value="563"/>
+	<item key="org.eclipse.jdt.uicleanup_pagemodify_dialog.preferred_y" value="187"/>
+	<item key="org.eclipse.jdt.ui.codeformatter.create_profile_dialog.open_edit" value="true"/>
+	<item key="org.eclipse.jdt.ui.codeformatter.line_wrapping_tab_page.preview_line_width" value="40"/>
+	<item key="org.eclipse.jdt.uiformatter_page.last_focus_index" value="394"/>
+	<item key="org.eclipse.jdt.ui.formatter_page.show_invisible_characters" value="false"/>
+	<item key="org.eclipse.jdt.uiformatter_pagemodify_dialog.preferred_width" value="1199"/>
+	<item key="org.eclipse.jdt.uiformatter_pagemodify_dialog.preferred_height" value="760"/>
+	<item key="org.eclipse.jdt.uiformatter_pagemodify_dialog.preferred_x" value="412"/>
+	<item key="org.eclipse.jdt.uiformatter_pagemodify_dialog.preferred_y" value="0"/>
+	<item key="org.eclipse.jdt.uiformatter_pagemodify_dialog.sash_form_left_width" value="522"/>
+	<item key="org.eclipse.jdt.uiformatter_pagemodify_dialog.sash_form_rigth_width" value="636"/>
+	<item key="org.eclipse.jdt.uiformatter_page.preference_tree_expansion" value="00.0..0.0.000.0.0.0.0.0.0.0.0.0..00.0.0.0.0.0.0.0.0.0.0..00.0.0.0.0.0.0..00.0.0.0..00.0.0.0...00.0..000.0..0.0..000.0.0.0.0.0.0.0.0.0.0...11.1..0.."/>
+	<item key="org.eclipse.jdt.uiformatter_page.preference_scroll_position" value="0"/>
 	<section name="org.eclipse.jdt.internal.ui.packageview.PackageExplorerPart">
 		<item key="group_libraries" value="true"/>
 		<item key="layout" value="2"/>
@@ -141,5 +159,7 @@
 	</section>
 	<section name="NewPackageWizardPage">
 		<item key="create_package_info_java" value="false"/>
+	</section>
+	<section name="RenameInformationPopup">
 	</section>
 </section>

@@ -2,18 +2,27 @@
 <qualifiedTypeNameHistroy>
     <fullyQualifiedTypeName name="java.util.Iterator"/>
     <fullyQualifiedTypeName name="java.util.Stack"/>
-    <fullyQualifiedTypeName name="java.util.LinkedList"/>
     <fullyQualifiedTypeName name="Entities.Entity"/>
     <fullyQualifiedTypeName name="Entities.Particle"/>
     <fullyQualifiedTypeName name="Control.World"/>
     <fullyQualifiedTypeName name="processing.opengl.PJOGL"/>
     <fullyQualifiedTypeName name="Control.Globals"/>
-    <fullyQualifiedTypeName name="processing.core.PImage"/>
-    <fullyQualifiedTypeName name="parts.Part"/>
-    <fullyQualifiedTypeName name="items.Tool"/>
-    <fullyQualifiedTypeName name="control.Globals"/>
     <fullyQualifiedTypeName name="events.PartMotionEvent"/>
     <fullyQualifiedTypeName name="events.EventManager"/>
     <fullyQualifiedTypeName name="java.util.Random"/>
     <fullyQualifiedTypeName name="blocks.Air"/>
+    <fullyQualifiedTypeName name="processing.opengl.PGL"/>
+    <fullyQualifiedTypeName name="parts.Air"/>
+    <fullyQualifiedTypeName name="parts.Rift"/>
+    <fullyQualifiedTypeName name="control.World"/>
+    <fullyQualifiedTypeName name="events.LogEvent"/>
+    <fullyQualifiedTypeName name="processing.core.PShape"/>
+    <fullyQualifiedTypeName name="blocks.Block"/>
+    <fullyQualifiedTypeName name="parts.Part"/>
+    <fullyQualifiedTypeName name="items.Item"/>
+    <fullyQualifiedTypeName name="java.util.LinkedList"/>
+    <fullyQualifiedTypeName name="parts.Trigger"/>
+    <fullyQualifiedTypeName name="processing.core.PImage"/>
+    <fullyQualifiedTypeName name="items.Tool"/>
+    <fullyQualifiedTypeName name="control.Globals"/>
 </qualifiedTypeNameHistroy>

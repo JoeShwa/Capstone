@@ -5,17 +5,22 @@ import java.util.TreeMap;
 import items.Item;
 
 public class Inventory {
+	
 	int size;
 	int maxSize;
+	int types;
 
 	static final int REND_X = 8;
 	static final int REND_Y = 4;
+	static final int MAX_TYPES = REND_X * REND_Y;
 
 	TreeMap<String, Item> content;
 
 	public Inventory(int maxSize) {
 		this.maxSize = maxSize;
 		content = new TreeMap<>();
+		size = 0;
+		types = 0;
 	}
 
 	public Item[] getItems() {
@@ -44,11 +49,15 @@ public class Inventory {
 
 	public boolean useItem(String name, int amt) {
 		Item item = content.get(name);
+		if(item == null) {
+			return false;
+		}
 		if (item.amount >= amt) {
 			item.amount -= amt;
 			size -= amt;
 			if (item.amount < 1) {
 				content.remove(name);
+				types--;
 			}
 			return true;
 		}
@@ -62,7 +71,11 @@ public class Inventory {
 		if (content.containsKey(item.getName())) {
 			content.get(item.getName()).amount += item.amount;
 		} else {
+			if(types == MAX_TYPES) {
+				return false;
+			}
 			content.put(item.getName(), item);
+			types++;
 		}
 		size += item.amount;
 		return true;

@@ -86,6 +86,7 @@ public class WorldGen extends Thread {
 				}
 			}
 		}
+		addPortal(minY, maxY);
 	}
 
 	public void generateDim0(int minY, int maxY) {
@@ -129,14 +130,21 @@ public class WorldGen extends Thread {
 			}
 		}
 		// Used to determine which blocks are on the outline of caves
-		Globals.world.updateAllFaces();
-		// Add the lights
+		Globals.world.updateAllVisibilty();
+		// Add the Star Rock and Thermite
 		for (int x = 0; x < Globals.world.sizeX(); x++) {
 			for (int y = 0; y < Globals.world.sizeY() - 1; y++) {
 				for (int z = 0; z < Globals.world.sizeZ(); z++) {
-					if (Globals.world.getBlock(x, y, z) instanceof Rock && Globals.world.getBlock(x, y, z).isVisible
-							&& Math.random() < 0.04) {
-						Globals.world.newBlock(x, y, z, new StarRock());
+					if (Globals.world.getBlock(x, y, z) instanceof Rock) {
+						if (Globals.world.getBlock(x, y, z).isVisible) {
+							if (Math.random() < 0.04) {
+								Globals.world.newBlock(x, y, z, new StarRock());
+							}
+						} else {
+							if(Math.random() < 0.01) {
+								Globals.world.newBlock(x, y, z, new Thermite());
+							}
+						}
 					}
 				}
 			}
@@ -153,11 +161,11 @@ public class WorldGen extends Thread {
 	void addPortal(int minY, int maxY) {
 		for (int x = 0; x < Globals.world.sizeX(); x++) {
 			for (int z = 0; z < Globals.world.sizeZ(); z++) {
-				if (Math.abs(x - Globals.world.sizeX() / 2) + Math.abs(z - Globals.world.sizeZ() / 2) > 5) {
+				if (Math.abs(x - Globals.world.sizeX() / 2) + Math.abs(z - Globals.world.sizeZ() / 2) > 10) {
 					Globals.world.newBlock(x, minY, z, new Rift());
 				} else {
 					for (int y = minY; y < maxY; y++) {
-						if (Math.random() < 0.96) {
+						if (Math.random() < 0.99) {
 							Globals.world.newBlock(x, y, z, new Air());
 						} else {
 							Globals.world.newBlock(x, y, z, new Rift());

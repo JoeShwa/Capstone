@@ -3,14 +3,13 @@ package control;
 import java.awt.Robot;
 import java.util.Iterator;
 import java.util.LinkedList;
-
 import blocks.Air;
 import blocks.Block;
 import entities.Entity;
 import events.EventManager;
+import events.LogEvent;
 import items.Item;
 import processing.core.PApplet;
-import processing.core.PImage;
 import processing.opengl.PJOGL;
 
 public class Main extends PApplet {
@@ -29,9 +28,11 @@ public class Main extends PApplet {
 	boolean mouseVisible = true;
 	int mouseCooldown = 0;
 	LinkedList<BlockPos> renderList;
+	int obsTime;
 
 	static long bm = 0;
-	
+	static double avg = 0;
+
 	// Tells the library to use this class as the main class
 	public static void main(String args[]) {
 		PApplet.main("control.Main");
@@ -47,6 +48,11 @@ public class Main extends PApplet {
 		long dif = System.nanoTime() - bm;
 		Globals.gui.log(id + ": " + (double) dif / 1000000);
 		System.out.println(id + ": " + (double) dif / 1000000);
+	}
+
+	public static double benchmark() {
+		long dif = System.nanoTime() - bm;
+		return (double) dif / 1000000;
 	}
 
 	public static void bmStart() {
@@ -104,6 +110,13 @@ public class Main extends PApplet {
 				Globals.add(player);
 				Globals.add(new GUI(this));
 				setupRenderList();
+				Globals.gui.log("System booting...");
+				EventManager.addEvent(new LogEvent("Activating universal positioning system..."), 180);
+				EventManager.addEvent(new LogEvent("Current location: _____"), 210);
+				EventManager.addEvent(new LogEvent("Objective 1: Survive"), 240);
+				EventManager.addEvent(new LogEvent("Objective 2: Research"), 240);
+				
+				
 			}
 			runGame();
 		}
@@ -120,6 +133,7 @@ public class Main extends PApplet {
 	}
 
 	public void updateEntities() {
+		LinkedList<Entity> news = new LinkedList<Entity>();
 		for (int x = 0; x < world.sizeX() / World.SUBDIV; x++) {
 			for (int y = 0; y < world.sizeY() / World.SUBDIV; y++) {
 				for (int z = 0; z < world.sizeZ() / World.SUBDIV; z++) {
@@ -129,14 +143,22 @@ public class Main extends PApplet {
 						entity.update();
 						if (entity.isDead) {
 							iter.remove();
+						} else if (entity.newChunk) {
+							iter.remove();
+							news.add(entity);
+							entity.newChunk = false;
 						}
 					}
 				}
 			}
 		}
+		for (Entity entity : news) {
+			world.addEntity(entity);
+		}
 	}
 
 	public void drawEntities() {
+		noTint();
 		LinkedList<Entity> entities = world.getEntities(Globals.floor(Globals.player.getX()),
 				Globals.floor(Globals.player.getY()), Globals.floor(Globals.player.getZ()), REND_DIST / World.SUBDIV);
 		entities = world.getEntities();
@@ -147,7 +169,7 @@ public class Main extends PApplet {
 	}
 
 	public void drawBlocks() {
-		Block.rand.setSeed(0);
+		bmStart();
 		for (Iterator<BlockPos> iterator = renderList.iterator(); iterator.hasNext();) {
 			BlockPos pos = iterator.next();
 			// Remove blocks from the render list if they fall out of range
@@ -162,48 +184,85 @@ public class Main extends PApplet {
 				b.isDrawn = false;
 			}
 		}
+		avg += benchmark();
+		if (frameCount % 300 == 0) {
+			// Globals.gui.log("Average render time: " + avg / 300);
+			avg = 0;
+		}
 	}
 
 	public void runGame() {
-		EventManager.runEvents();
-		if (mousePressed && mouseCooldown < 1) {
-			mousePressed();
-		}
-		mouseCooldown--;
-		noStroke();
-		player.move(this);
-		updateEntities();
-		if (Globals.gui.guiState == GUI.GAME) {
-			if (mouseVisible) {
-				noCursor();
-				mouseVisible = false;
+		if (Globals.gui.guiState != GUI.OBSERVE) {
+			// Reset observation mode
+			obsTime = -1;
+			EventManager.runEvents();
+			if (mousePressed && mouseCooldown < 1) {
+				mousePressed();
 			}
-			pushMatrix();
-			doCamera(player.getX(), player.getY(), player.getZ(), player.getYaw(), player.getPitch());
-			// Fixes clipping
-			perspective(PI / 3, (float) width / height, 0.01f, 10000);
-			// Adds the blocks at the edges of the render distance to be rendered
-			// Requires loop to account for (literal) corner cases with movement
-			for (int i = 0; i < 3; i++) {
-				addRenderBlocks(REND_DIST - i);
-			}
-			background(0);
-			drawBlocks();
-			drawEntities();
-			popMatrix();
-		} else {
-			if (!mouseVisible) {
-				cursor();
-				mouseVisible = true;
-			}
-			// Adds the blocks to be rendered even when the gui state isn't at game
-			// This prevents motion while in a menu from causing rendering bugs
-			for (int i = 0; i < 3; i++) {
-				addRenderBlocks(REND_DIST - i);
+			mouseCooldown--;
+			noStroke();
+			player.move(this);
+			updateEntities();
+			if (Globals.gui.guiState == GUI.GAME) {
+				if (mouseVisible) {
+					noCursor();
+					mouseVisible = false;
+				}
+				pushMatrix();
+				doCamera(player.getX(), player.getY(), player.getZ(), player.getYaw(), player.getPitch());
+				// Fixes clipping
+				perspective(PI / 3, (float) width / height, 0.01f, 10000);
+				// Adds the blocks at the edges of the render distance to be rendered
+				// Requires loop to account for (literal) corner cases with movement
+				for (int i = 0; i < 3; i++) {
+					addRenderBlocks(REND_DIST - i); // POTENTIAL LAG CAUSE
+				}
+				background(0);
+				drawBlocks();
+				drawEntities();
+				popMatrix();
+			} else {
+				if (!mouseVisible) {
+					cursor();
+					mouseVisible = true;
+				}
+				// Adds the blocks to be rendered even when the gui state isn't at game
+				// This prevents motion while in a menu from causing rendering bugs
+				for (int i = 0; i < 3; i++) {
+					addRenderBlocks(REND_DIST - i);
+				}
 			}
 		}
 		Globals.gui.doGUI();
-		Globals.gui.drawGUI();
+		if (Globals.gui.guiState != GUI.OBSERVE) {
+			Globals.gui.drawGUI();
+		} else {
+			showObservation();
+		}
+	}
+
+	public void showObservation() {
+		if (obsTime == -1) {
+			background(0);
+			obsTime = 0;
+			pushMatrix();
+			doCamera(player.getX(), player.getY(), player.getZ(), player.getYaw(), player.getPitch());
+			// Fixes clipping
+			perspective(PI / 3, (float) width / height, 0.01f, 1000000000);
+			int dist = 150;
+			for (int x = -dist; x <= dist; x++) {
+				for (int y = -dist; y <= dist; y++) {
+					for (int z = -dist; z <= dist; z++) {
+						Block b = world.getBlock(x + player.getX(), y + player.getY(), z + player.getZ());
+						if (b.isVisible) {
+							b.draw(x + Globals.floor(player.getX()), y + Globals.floor(player.getY()),
+									z + Globals.floor(player.getZ()));
+						}
+					}
+				}
+			}
+			popMatrix();
+		}
 	}
 
 	// Adds blocks to the render list if they just came in range
@@ -263,7 +322,7 @@ public class Main extends PApplet {
 			key = 0;
 		}
 		// Quit if P is pressed
-		if(key == 'p') {
+		if (key == 'p') {
 			key = ESC;
 		}
 	}

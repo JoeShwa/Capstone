@@ -1,7 +1,5 @@
 package blocks;
 
-import java.util.Random;
-
 import control.BlockPos;
 import control.Globals;
 import control.World;
@@ -14,18 +12,14 @@ import processing.core.PVector;
 public abstract class Block implements Blocks {
 
 	static PApplet p;
-	static PShape sh;
+	public static PShape sh;
 	static int[][] dirs = { { 0, 0, -1 }, { 0, 0, 1 }, { 1, 0, 0 }, { -1, 0, 0 }, { 0, -1, 0 }, { 0, 1, 0 } };
-	boolean[] faces = new boolean[6];
 	public boolean isVisible;
 	static World world;
 	public short light;
 	static final int AMBIENCE = 50;
 	public static final int BIGGEST_LIGHT = 8;
 	public boolean isDrawn;
-	
-	
-	public static Random rand;
 
 	public boolean isLight() {
 		return false;
@@ -37,19 +31,17 @@ public abstract class Block implements Blocks {
 		sh = p.createShape(PConstants.BOX, 100);
 		// I don't know why this needs to be here, but it breaks without it
 		sh.getVertexCount();
-		
-		rand = new Random();
 	}
 
 	public void placeEvent(int x, int y, int z, Block prev) {
 		this.light = (short) Math.max(AMBIENCE, prev.light);
 		isDrawn = prev.isDrawn;
-		updateFaces(x, y, z);
+		updateVisibilty(x, y, z);
 		for (int i = 0; i < dirs.length; i++) {
 			int nx = x + dirs[i][0];
 			int ny = y + dirs[i][1];
 			int nz = z + dirs[i][2];
-			world.getBlock(nx, ny, nz).updateFaces(nx, ny, nz);
+			world.getBlock(nx, ny, nz).updateVisibilty(nx, ny, nz);
 		}
 	}
 
@@ -59,7 +51,7 @@ public abstract class Block implements Blocks {
 			int nx = x + dirs[i][0];
 			int ny = y + dirs[i][1];
 			int nz = z + dirs[i][2];
-			world.getBlock(nx, ny, nz).updateFaces(nx, ny, nz);
+			world.getBlock(nx, ny, nz).updateVisibilty(nx, ny, nz);
 		}
 	}
 
@@ -67,30 +59,32 @@ public abstract class Block implements Blocks {
 		return isSolid() || !isTrans();
 	}
 
-	public void updateFaces(int x, int y, int z) {
+	public void updateVisibilty(int x, int y, int z) {
 		isVisible = false;
 		for (int i = 0; i < 6; i++) {
 			if (world.getBlock(x + dirs[i][0], y + dirs[i][1], z + dirs[i][2]).isTrans()) {
-				faces[i] = true;
 				isVisible = true;
-			} else {
-				faces[i] = false;
 			}
 		}
-		if(isVisible && !isDrawn) {
+		if (isVisible && !isDrawn) {
 			Globals.main.addRenderBlock(new BlockPos(x, y, z));
 		}
 	}
 
 	void draw(PImage tex, int x, int y, int z) {
 		if (isVisible) {
+			int px = (int) Math.signum(Globals.player.getX() - x - 0.5);
+			int py = (int) Math.signum(Globals.player.getY() - y - 0.5);
+			int pz = (int) Math.signum(Globals.player.getZ() - z - 0.5);
 			x *= 100;
 			y *= 100;
 			z *= 100;
 			p.pushMatrix();
 			p.translate(x + 50, y + 50, z + 50);
 			for (int i = 0; i < 6; i++) {
-				if (faces[i]) {
+				if ((dirs[i][0] == 0 || dirs[i][0] == px) && (dirs[i][1] == 0 || dirs[i][1] == py)
+						&& (dirs[i][2] == 0 || dirs[i][2] == pz) && Globals.world
+								.getBlock(x / 100 + dirs[i][0], y / 100 + dirs[i][1], z / 100 + dirs[i][2]).isTrans()) {
 					p.beginShape(PConstants.QUADS);
 					p.texture(tex);
 					p.textureMode(PConstants.NORMAL);

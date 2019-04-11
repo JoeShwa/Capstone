@@ -16,10 +16,6 @@ public abstract class Item implements Items {
 		amount = 1;
 	}
 
-	public Item(int amt) {
-		amount = amt;
-	}
-
 	public void draw(PImage tex, int x, int y) {
 		p.noStroke();
 		// Rescale and refit position to render

@@ -2,6 +2,7 @@ package items;
 
 import blocks.Block;
 import control.Globals;
+import parts.Part;
 import processing.core.PImage;
 
 public class Crystal extends Item {
@@ -23,6 +24,10 @@ public class Crystal extends Item {
 
 	public void draw(int x, int y) {
 		draw(tex, x, y);
+	}
+	
+	public Part getPart(int x, int y) {
+		return new parts.Crystal(x, y);
 	}
 
 }

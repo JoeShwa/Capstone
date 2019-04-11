@@ -12,9 +12,9 @@ public class Player {
 	private double x;
 	private double y;
 	private double z;
-	private double xv;
-	private double yv;
-	private double zv;
+	public double xv;
+	public double yv;
+	public double zv;
 	private double yaw;
 	private double pitch;
 	double yawV;
@@ -22,27 +22,35 @@ public class Player {
 	// Used to loop through all 6 directions
 	static int[][] dirs = { { 0, 0, -1 }, { 0, 0, 1 }, { 1, 0, 0 }, { -1, 0, 0 }, { 0, -1, 0 }, { 0, 1, 0 } };
 	// Player's internal inventory
-	Inventory inventory;
+	public Inventory inventory;
 	// Items that have been discovered
 	Inventory research;
 	// Selected item
-	Item selItem;
+	public Item selItem;
 	// Keyboard input
 	boolean[] input;
 	// Player reach length
-	static final int REACH = 7;
+	int reach = 7;
 	// Scan step for detecting blocks in front of player
 	static final double SCAN_STEP = 0.1;
-	// Player jump strength
-	static final double JUMP = 0.3;
 	// Player run speed
-	static final double SPEED = 0.05;
+	static final double SPEED = 0.02;
+	// Player's ability to move in the air
+	static final double AIR_CONTROL = 0;
 	// Disables rotation smoothing
-	static final boolean INSTANT_ROTATION = true;
+	static final boolean INSTANT_ROTATION = false;
+	// How much thrust the player's jetpack provides (gravity disabled)
+	static final double JET_STREN = 0.0027;
+	// How strong the player's jump is
+	static final double JUMP = 0.15;
+	// How long the player's jetpack lasts
+	int maxFuel;
+	// Amount of jetpack fuel left
+	double fuel;
 	// Whether the player can mine or not
 	public boolean canMine = true;
-	// How long until the player can minew
-	int mineCool = 0;
+	// How long until the player can mine
+	int mineCool;
 
 	public Player(boolean[] input) {
 		yaw = 0;
@@ -52,13 +60,14 @@ public class Player {
 		xv = 0;
 		yv = 0;
 		zv = 0;
+		mineCool = 0;
+		maxFuel = 20;
+		fuel = maxFuel;
 		this.input = input;
-		x = Globals.world.sizeX() / 2;
-		y = Globals.world.sizeY() - 1;
-		z = Globals.world.sizeZ() / 2;
 		while (check()) {
 			x = Globals.world.sizeX() * Math.random();
 			y = Globals.world.sizeY() - 1;
+			y = 100;
 			z = Globals.world.sizeZ() * Math.random();
 			int count = 0;
 			while (count < 75 && check()) {
@@ -66,9 +75,18 @@ public class Player {
 				count++;
 			}
 		}
-		inventory = new Inventory(50);
+		inventory = new Inventory(100000);
 		research = new Inventory(Integer.MAX_VALUE);
 		inventory.addItem(new Tool());
+		Item item = new items.Sludge();
+		item.amount = 400;
+		inventory.addItem(item);
+		item = new items.Thermite();
+		item.amount = 400;
+		inventory.addItem(item);
+		item = new items.Rock();
+		item.amount = 400;
+		inventory.addItem(item);
 	}
 
 	public void research(Item item) {
@@ -138,25 +156,25 @@ public class Player {
 		switch (Globals.gui.guiState) {
 		case GUI.GAME:
 			if (selItem != null) {
-				// Get coords where player is looking
-				int[] hit = scan(true);
-				// Place block if it can, and use the item
-				if (hit != null && selItem.getBlock() != null && inventory.useItem(selItem.getName(), 1)) {
-					Globals.world.setBlock(hit[0], hit[1], hit[2], selItem.getBlock());
-					if (selItem.amount == 0) {
-						selItem = null;
+				if (selItem instanceof Tool) {
+					Tool tool = (Tool) selItem;
+					tool.activate();
+				} else {
+					// Get coords where player is looking
+					int[] hit = scan(true);
+					// Place block if it can, and use the item
+					if (hit != null && selItem.getBlock() != null && inventory.useItem(selItem.getName(), 1)) {
+						Globals.world.setBlock(hit[0], hit[1], hit[2], selItem.getBlock());
+						if (selItem.amount == 0) {
+							selItem = null;
+						}
+					}
+					if (check()) {
+						Globals.gui.log("You can't place a block where you exist!");
+						inventory.addItem(Globals.world.getBlock(hit[0], hit[1], hit[2]).getItem());
+						Globals.world.breakBlock(hit[0], hit[1], hit[2]);
 					}
 				}
-				if(check()) {
-					Globals.gui.log("You can't place a block where you exist!");
-					inventory.addItem(Globals.world.getBlock(hit[0], hit[1], hit[2]).getItem());
-					Globals.world.breakBlock(hit[0], hit[1], hit[2]);
-				}
-			} else {
-				double xv = Math.cos(yaw) * Math.cos(pitch);
-				double yv = Math.sin(pitch);
-				double zv = Math.sin(yaw) * Math.cos(pitch);
-				Globals.world.addEntity(new Particle(x, y, z, xv, yv, zv));
 			}
 			break;
 		}
@@ -172,14 +190,14 @@ public class Player {
 		double rzv = Math.sin(yaw) * Math.cos(pitch) * SCAN_STEP;
 		double dist = 0;
 		boolean hitBlock = false;
-		while (dist < REACH) {
+		while (dist < reach) {
 			dist += SCAN_STEP;
 			rx += rxv;
 			ry += ryv;
 			rz += rzv;
 			if (Globals.world.getBlock(rx, ry, rz).isBreakable()) {
 				hitBlock = true;
-				dist = REACH;
+				dist = reach;
 			}
 		}
 		if (needAir) {
@@ -195,12 +213,17 @@ public class Player {
 	}
 
 	public void move(Main m) {
+		// Update the tool if the player is selecting a tool
+		if (selItem instanceof Tool) {
+			Tool tool = (Tool) selItem;
+			tool.update();
+		}
 		// Does mouse movement
-		if (Globals.gui.guiState == GUI.GAME) {
+		if (Globals.gui.guiState == GUI.GAME && Globals.p.focused) {
 			yawV += Math.toRadians(m.mouseX - m.width / 2) * Main.MOUSE_SENSITIVITY;
 			pitchV += Math.toRadians(m.mouseY - m.height / 2) * Main.MOUSE_SENSITIVITY;
 			m.r.mouseMove(m.width / 2, m.height / 2);
-			if(INSTANT_ROTATION) {
+			if (INSTANT_ROTATION) {
 				yaw += yawV * 1.5;
 				pitch += pitchV * 1.5;
 				yawV = 0;
@@ -240,7 +263,6 @@ public class Player {
 			bI = 1;
 			bJ = 1;
 			bK = 1;
-			//Globals.gui.log("Collision error. Accomodating as possible.");
 		}
 		x -= xv * bI;
 		y -= yv * bJ;
@@ -248,17 +270,37 @@ public class Player {
 		xv *= 1 - bI;
 		yv *= 1 - bJ;
 		zv *= 1 - bK;
-		// Movement dampening
-		xv *= 0.75;
-		yv *= 0.98;
-		zv *= 0.75;
+		// Check if the player is on the ground
+		boolean onGround = false;
+		if (bJ == 1) {
+			y++;
+			if (check()) {
+				onGround = true;
+			}
+			y--;
+		}
+		// Stop player from exceeding 1 block per frame
+		double speed = Math.sqrt(xv * xv + yv * yv + zv * zv);
+		if (speed > 1) {
+			xv /= speed;
+			yv /= speed;
+			zv /= speed;
+		}
+		// Apply friction when on ground
+		if (onGround) {
+			xv *= 0.9;
+			zv *= 0.9;
+		}
+		// Accelerate yaw/pitch by velocities
 		yaw += yawV;
 		pitch += pitchV;
+		// Dampen rotation
 		yawV *= 0.3;
 		pitchV *= 0.3;
-		double buttons = 0;
 		// Movement from player input
+		boolean usingJetpack = false;
 		if (Globals.gui.guiState == GUI.GAME) {
+			double buttons = 0;
 			if (m.input['w']) {
 				buttons++;
 			}
@@ -271,7 +313,19 @@ public class Player {
 			if (m.input['d']) {
 				buttons++;
 			}
-			double speed = SPEED / Math.sqrt(buttons);
+			if (m.input[' '] && fuel > 0) {
+				fuel--;
+				usingJetpack = true;
+			}
+			if (onGround) {
+				speed = SPEED / Math.sqrt(buttons);
+			} else {
+				if (usingJetpack) {
+					speed = JET_STREN / Math.sqrt(buttons);
+				} else {
+					speed = AIR_CONTROL / Math.sqrt(buttons);
+				}
+			}
 			if (pitch > Math.toRadians(89)) {
 				pitch = Math.toRadians(89);
 			}
@@ -297,19 +351,33 @@ public class Player {
 				xvc += speed * Math.cos(yaw + Math.toRadians(90));
 				zvc += speed * Math.sin(yaw + Math.toRadians(90));
 			}
-			if (m.input[' ']) {
-				yvc = -JUMP * bJ;
+			if (usingJetpack) {
+				yvc = -JET_STREN;
+			}
+			if (onGround && input[' ']) {
+				yvc -= JUMP;
 			}
 			xv += xvc;
 			yv += yvc;
 			zv += zvc;
 		}
-		yv += World.GRAVITY;
+		// Apply gravity
+		if (!usingJetpack) {
+			yv += World.GRAVITY;
+		}
+		// Change the mining cooldown
 		if (mineCool > 0) {
 			mineCool--;
 			canMine = false;
 		} else {
 			canMine = true;
+		}
+		// Give fuel back while on the ground
+		if (onGround && fuel < maxFuel) {
+			fuel += maxFuel / 15;
+			if (fuel > maxFuel) {
+				fuel = maxFuel;
+			}
 		}
 	}
 

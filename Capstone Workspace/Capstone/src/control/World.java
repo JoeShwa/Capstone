@@ -33,11 +33,9 @@ public class World {
 
 	}
 
+	// Adds the entity at the correct chunk
 	public void addEntity(Entity entity) {
-		int x = Globals.mod(Globals.floor(entity.x / SUBDIV), entities.length);
-		int y = Globals.mod(Globals.floor(entity.y / SUBDIV), entities[0].length);
-		int z = Globals.mod(Globals.floor(entity.z / SUBDIV), entities[0][0].length);
-		entities[x][y][z].add(entity);
+		getEntities(Globals.floor(entity.x), Globals.floor(entity.y), Globals.floor(entity.z)).add(entity);
 	}
 
 	// Gets all the entities in all the chunks in the cubic radius around xyz
@@ -77,11 +75,11 @@ public class World {
 		return entities[x][y][z];
 	}
 
-	public void updateAllFaces() {
+	public void updateAllVisibilty() {
 		for (int x = 0; x < sizeX(); x++) {
 			for (int y = 0; y < sizeY(); y++) {
 				for (int z = 0; z < sizeZ(); z++) {
-					getBlock(x, y, z).updateFaces(x, y, z);
+					getBlock(x, y, z).updateVisibilty(x, y, z);
 				}
 			}
 		}

@@ -1,16 +1,21 @@
 package entities;
 
 import control.Globals;
+import control.World;
 
 public abstract class Entity implements Entities {
 
 	public double x;
 	public double y;
 	public double z;
+	int chunkX;
+	int chunkY;
+	int chunkZ;
 	double xv = 0;
 	double yv = 0;
 	double zv = 0;
 	public boolean isDead = false;
+	public boolean newChunk = false;
 	
 	protected void kill() {
 		isDead = true;
@@ -45,6 +50,19 @@ public abstract class Entity implements Entities {
 		x = Globals.mod(x, Globals.world.sizeX());
 		y = Globals.mod(y, Globals.world.sizeY());
 		z = Globals.mod(z, Globals.world.sizeZ());
+	}
+	
+	public void update() {
+		wrapPos();
+		int ncx =  Globals.floor(x) / World.SUBDIV;
+		int ncy =  Globals.floor(y) / World.SUBDIV;
+		int ncz =  Globals.floor(z) / World.SUBDIV;
+		if(chunkX != ncx || chunkY != ncy || chunkZ != ncz) {
+			chunkX = ncx;
+			chunkY = ncy;
+			chunkZ = ncz;
+			newChunk = true;
+		}
 	}
 
 }

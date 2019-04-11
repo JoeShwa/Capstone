@@ -12,7 +12,9 @@ public class Globals {
 	public static World world;
 	public static GUI gui;
 	// Pre-calculated commonly used sqrts for efficiency
-	static double[] sqrts;
+	private static double[] sqrts;
+	// 6 direction vectors for a cube
+	public static int[][] dirs = { { 0, 0, -1 }, { 0, 0, 1 }, { 1, 0, 0 }, { -1, 0, 0 }, { 0, -1, 0 }, { 0, 1, 0 } };
 	
 	public static double sqrt(int a) {
 		return sqrts[a];

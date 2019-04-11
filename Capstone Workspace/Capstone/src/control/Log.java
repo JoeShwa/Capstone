@@ -7,7 +7,7 @@ public class Log {
 	
 	public Log(String msg) {
 		this.msg = msg;
-		time = 300;
+		time = 600;
 	}
 	
 	public int getAlpha() {

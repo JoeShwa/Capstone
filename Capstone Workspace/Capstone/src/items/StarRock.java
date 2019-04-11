@@ -1,6 +1,7 @@
 package items;
 
 import blocks.Block;
+import parts.Part;
 import processing.core.PImage;
 
 public class StarRock extends Item {
@@ -22,5 +23,9 @@ public class StarRock extends Item {
 
 	public Block getBlock() {
 		return new blocks.StarRock();
+	}
+
+	public Part getPart(int x, int y) {
+		return new parts.StarRock(x, y);
 	}
 }

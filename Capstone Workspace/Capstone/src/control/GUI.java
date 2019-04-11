@@ -2,10 +2,10 @@ package control;
 
 import java.util.Iterator;
 import java.util.LinkedList;
-
 import items.Item;
+import items.Tool;
+import parts.Part;
 import processing.core.PApplet;
-import processing.core.PConstants;
 
 public class GUI {
 
@@ -18,14 +18,17 @@ public class GUI {
 	public static final int INVENTORY = 1;
 	public static final int RESEARCH = 2;
 	public static final int RES_ITEM = 3;
+	public static final int OBSERVE = 4;
+	public static final int TOOL = 5;
+	// GUI's current state
 	public int guiState = GAME;
 	// Prevents unintentional spam-switching of GUI state
 	boolean[] prevC;
 	boolean canSwitchState = true;
 	// Holds data logged on screen
 	LinkedList<Log> logs;
-	// Item to be shown in research
-	Item resItem;
+	// Item currently being worked with in the GUI
+	Item workItem;
 
 	public GUI(PApplet p) {
 		GUI.p = p;
@@ -35,7 +38,7 @@ public class GUI {
 
 	public void log(String log) {
 		logs.add(new Log(log));
-		if (logs.size() > 8) {
+		if (logs.size() > 20) {
 			logs.remove();
 		}
 	}
@@ -63,7 +66,8 @@ public class GUI {
 	}
 
 	public void drawGUI() {
-		p.hint(PConstants.DISABLE_DEPTH_TEST);
+		p.hint(PApplet.DISABLE_DEPTH_TEST);
+		p.textAlign(PApplet.CENTER, PApplet.CENTER);
 		// Draw GUI depending on gui state
 		switch (guiState) {
 		case GAME:
@@ -71,14 +75,18 @@ public class GUI {
 			p.noFill();
 			p.strokeWeight(3);
 			p.ellipse(p.width / 2, p.height / 2, 10, 10);
-			if (Globals.player.selItem != null) {
-				Globals.player.selItem.draw(0, 0);
-			}
 			if (pulse < 256 && pulse > -1) {
-				p.noFill();
-				p.strokeWeight(3);
 				p.stroke(255, 255, 255, 255 - pulse);
 				p.ellipse(p.width / 2, p.height / 2, pulse / 10 + 10, pulse / 10 + 10);
+			}
+			p.stroke(255);
+			p.rect(3, 287, 20, 100);
+			p.noStroke();
+			p.fill(150, 150, 200);
+			float fuel = (float) Globals.player.fuel / Globals.player.maxFuel * 100;
+			p.rect(3, 387 - fuel, 20, fuel);
+			if (Globals.player.selItem != null) {
+				Globals.player.selItem.draw(0, 0);
 			}
 			break;
 		case INVENTORY:
@@ -119,28 +127,47 @@ public class GUI {
 			break;
 		case RES_ITEM:
 			p.background(0);
-			resItem.draw(0, 0);
+			workItem.draw(0, 0);
 			p.fill(255);
 			p.textSize(64);
-			p.text(resItem.getName(), p.width / 2, 128);
+			p.text(workItem.getName(), p.width / 2, 128);
 			p.textSize(32);
-			p.text(resItem.getLore(), 240, p.height / 2 - 256, 1440, 512);
+			p.text(workItem.getLore(), 240, p.height / 2 - 256, 1440, 512);
+			break;
+		case TOOL:
+			p.background(0);
+			Tool tool = (Tool) workItem;
+			tool.drawBig();
+			if (Globals.player.selItem != null) {
+				Globals.player.selItem.draw(0, 0);
+			}
 			break;
 		}
 		// Draw text log
 		int y = 60;
 		p.textSize(24);
 		p.noStroke();
+		p.textAlign(PApplet.LEFT, PApplet.CENTER);
 		for (Iterator<Log> iter = logs.descendingIterator(); iter.hasNext();) {
 			Log log = iter.next();
 			p.fill(0, 0, 0, log.getAlpha() / 3);
-			int height = (int) Math.max(64 * p.textWidth(log.msg) / 400, 48);
+			String msg = "";
+			for (int i = 0; i < log.msg.length(); i++) {
+				char ch;
+				if (log.msg.charAt(i) == '_') {
+					ch = (char) (Math.random() * ('z' - 'a') + 'a');
+				} else {
+					ch = log.msg.charAt(i);
+				}
+				msg += ch;
+			}
+			int height = (int) Math.max(64 * p.textWidth(msg) / 400, 48);
 			p.rect(1500, y, 400, height);
 			p.fill(255, 255, 255, log.getAlpha());
-			p.text(log.msg, 1500, y, 400, height);
+			p.text(msg, 1500, y, 400, height);
 			y += height;
 		}
-		p.hint(PConstants.ENABLE_DEPTH_TEST);
+		p.hint(PApplet.ENABLE_DEPTH_TEST);
 	}
 
 	// Toggles given gui state when given key is pressed
@@ -168,6 +195,8 @@ public class GUI {
 		stateKey('e', INVENTORY);
 		stateKey('r', RESEARCH);
 		stateKey(PApplet.ESC, GAME);
+		stateKey('f', OBSERVE);
+		stateKey('t', TOOL);
 		// Update GUI
 		switch (guiState) {
 		case GAME:
@@ -175,10 +204,55 @@ public class GUI {
 				pulse += pulseChange;
 			}
 			break;
-		case INVENTORY:
-			break;
-		case RESEARCH:
-			
+		case TOOL:
+			// Tool selection
+			if (Globals.player.selItem instanceof Tool) {
+				workItem = Globals.player.selItem;
+				Globals.player.selItem = null;
+			} else {
+				if (workItem == null || !(workItem instanceof Tool)) {
+					guiState = GAME;
+					log("Select a tool to modify it!");
+					break;
+				}
+			}
+			// Tool editing
+			Tool tool = (Tool) workItem;
+			int mx = (p.mouseX - p.width / 2 + 512) / 64;
+			int my = (p.mouseY - p.height / 2 + 512) / 64;
+			if (p.mousePressed && !(tool.getPart(mx, my) instanceof parts.Rift)) {
+				switch (p.mouseButton) {
+				case PApplet.RIGHT:
+					if (tool.getPart(mx, my) instanceof parts.Air && Globals.player.selItem != null) {
+						if (Globals.player.inventory.useItem(Globals.player.selItem.getName(), 1)) {
+							Part newPart = Globals.player.selItem.getPart(mx, my);
+							tool.setPart(mx, my, newPart);
+							if (Globals.player.selItem.amount < 1) {
+								Globals.player.selItem = null;
+							}
+						}
+					}
+					break;
+				case PApplet.LEFT:
+					Part part = tool.getPart(mx, my);
+					if (!(part instanceof parts.Air)) {
+						Globals.player.inventory.addItem(part.getItem());
+						tool.setPart(mx, my, new parts.Air(mx, my));
+					}
+					break;
+				case PApplet.CENTER:
+					if (tool.getPart(mx, my) instanceof parts.Air && Globals.player.selItem != null) {
+						if (Globals.player.inventory.useItem(Globals.player.selItem.getName(), 1)) {
+							parts.Spawner newPart = new parts.Spawner(mx, my, tool, Globals.player.selItem.getPart(-1, -1));
+							tool.setPart(mx, my, newPart);
+							if (Globals.player.selItem.amount < 1) {
+								Globals.player.selItem = null;
+							}
+						}
+					}
+					break;
+				}
+			}
 			break;
 		}
 		// Update text log decay
@@ -192,7 +266,7 @@ public class GUI {
 	}
 
 	public void showResearch(Item item) {
-		resItem = item;
+		workItem = item;
 		guiState = RES_ITEM;
 	}
 }
