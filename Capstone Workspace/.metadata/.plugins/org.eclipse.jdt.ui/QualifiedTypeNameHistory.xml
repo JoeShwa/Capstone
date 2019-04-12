@@ -8,9 +8,6 @@
     <fullyQualifiedTypeName name="processing.opengl.PJOGL"/>
     <fullyQualifiedTypeName name="Control.Globals"/>
     <fullyQualifiedTypeName name="events.PartMotionEvent"/>
-    <fullyQualifiedTypeName name="events.EventManager"/>
-    <fullyQualifiedTypeName name="java.util.Random"/>
-    <fullyQualifiedTypeName name="blocks.Air"/>
     <fullyQualifiedTypeName name="processing.opengl.PGL"/>
     <fullyQualifiedTypeName name="parts.Air"/>
     <fullyQualifiedTypeName name="parts.Rift"/>
@@ -24,5 +21,11 @@
     <fullyQualifiedTypeName name="parts.Trigger"/>
     <fullyQualifiedTypeName name="processing.core.PImage"/>
     <fullyQualifiedTypeName name="items.Tool"/>
+    <fullyQualifiedTypeName name="java.util.Random"/>
+    <fullyQualifiedTypeName name="blocks.Electrite"/>
     <fullyQualifiedTypeName name="control.Globals"/>
+    <fullyQualifiedTypeName name="blocks.Thermite"/>
+    <fullyQualifiedTypeName name="blocks.Air"/>
+    <fullyQualifiedTypeName name="events.EventManager"/>
+    <fullyQualifiedTypeName name="events.ThermiteElectriteEvent"/>
 </qualifiedTypeNameHistroy>

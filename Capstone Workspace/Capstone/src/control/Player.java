@@ -40,7 +40,7 @@ public class Player {
 	// Disables rotation smoothing
 	static final boolean INSTANT_ROTATION = false;
 	// How much thrust the player's jetpack provides (gravity disabled)
-	static final double JET_STREN = 0.0027;
+	static final double JET_STREN = 0.003;
 	// How strong the player's jump is
 	static final double JUMP = 0.15;
 	// How long the player's jetpack lasts
@@ -51,6 +51,14 @@ public class Player {
 	public boolean canMine = true;
 	// How long until the player can mine
 	int mineCool;
+	// Player's structural integrity
+	int integrity;
+	// Player's maximum structural integrity
+	int maxInteg;
+	// Player's energy level
+	public int energy;
+	// Player's maximum energy level
+	public int maxEnergy;
 
 	public Player(boolean[] input) {
 		yaw = 0;
@@ -61,13 +69,16 @@ public class Player {
 		yv = 0;
 		zv = 0;
 		mineCool = 0;
-		maxFuel = 20;
+		maxFuel = 16;
+		maxInteg = 1024;
+		integrity = maxInteg;
+		maxEnergy = 16384;
+		energy = maxEnergy;
 		fuel = maxFuel;
 		this.input = input;
 		while (check()) {
 			x = Globals.world.sizeX() * Math.random();
 			y = Globals.world.sizeY() - 1;
-			y = 100;
 			z = Globals.world.sizeZ() * Math.random();
 			int count = 0;
 			while (count < 75 && check()) {
@@ -75,18 +86,9 @@ public class Player {
 				count++;
 			}
 		}
-		inventory = new Inventory(100000);
+		inventory = new Inventory(100);
 		research = new Inventory(Integer.MAX_VALUE);
 		inventory.addItem(new Tool());
-		Item item = new items.Sludge();
-		item.amount = 400;
-		inventory.addItem(item);
-		item = new items.Thermite();
-		item.amount = 400;
-		inventory.addItem(item);
-		item = new items.Rock();
-		item.amount = 400;
-		inventory.addItem(item);
 	}
 
 	public void research(Item item) {
@@ -170,7 +172,6 @@ public class Player {
 						}
 					}
 					if (check()) {
-						Globals.gui.log("You can't place a block where you exist!");
 						inventory.addItem(Globals.world.getBlock(hit[0], hit[1], hit[2]).getItem());
 						Globals.world.breakBlock(hit[0], hit[1], hit[2]);
 					}
@@ -264,6 +265,9 @@ public class Player {
 			bJ = 1;
 			bK = 1;
 		}
+		// Deal impact damage to the player (falling, etc)
+		double impactSpeed = Math.sqrt(xv * xv * bI + yv * yv * bJ + zv * zv * bK);
+		impact(impactSpeed);
 		x -= xv * bI;
 		y -= yv * bJ;
 		z -= zv * bK;
@@ -326,6 +330,12 @@ public class Player {
 					speed = AIR_CONTROL / Math.sqrt(buttons);
 				}
 			}
+			// Use energy to move around
+			if (buttons > 0 && energy > 0) {
+				energy--;
+			} else {
+				speed = 0;
+			}
 			if (pitch > Math.toRadians(89)) {
 				pitch = Math.toRadians(89);
 			}
@@ -373,12 +383,32 @@ public class Player {
 			canMine = true;
 		}
 		// Give fuel back while on the ground
-		if (onGround && fuel < maxFuel) {
-			fuel += maxFuel / 15;
+		if (onGround && fuel < maxFuel && energy > 0) {
+			fuel += 4;
 			if (fuel > maxFuel) {
+				energy += fuel - maxFuel;
 				fuel = maxFuel;
 			}
+			
+			energy -= 4;
 		}
+		// Repair integrity at the cost of energy
+		if (energy > maxEnergy / 4 && integrity < maxInteg) {
+			energy -= 32;
+			integrity++;
+		}
+	}
+
+	// Do impact damage
+	private void impact(double speed) {
+		speed -= 0.5;
+		if (speed > 0) {
+			hurt((int) (speed * 2048));
+		}
+	}
+
+	public void hurt(int dmg) {
+		integrity -= dmg;
 	}
 
 	// Wraps the player's position around the world

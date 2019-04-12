@@ -60,7 +60,11 @@ public class WorldGen extends Thread {
 				int height = (int) -(Globals.p.noise((float) x / 20, (float) z / 20) * 20) + maxY - 1;
 				int y;
 				for (y = maxY - 1; y > height; y--) {
-					world.setBlock(x, y, z, new Sludge());
+					if (Math.random() < 0.995) {
+						world.setBlock(x, y, z, new Sludge());
+					} else {
+						world.setBlock(x, y, z, new Electrite());
+					}
 				}
 				int tx = x;
 				int tz = z;
@@ -141,7 +145,7 @@ public class WorldGen extends Thread {
 								Globals.world.newBlock(x, y, z, new StarRock());
 							}
 						} else {
-							if(Math.random() < 0.01) {
+							if (Math.random() < 0.01) {
 								Globals.world.newBlock(x, y, z, new Thermite());
 							}
 						}
@@ -169,6 +173,9 @@ public class WorldGen extends Thread {
 							Globals.world.newBlock(x, y, z, new Air());
 						} else {
 							Globals.world.newBlock(x, y, z, new Rift());
+						}
+						if(x - Globals.world.sizeX() / 2 == 0 && z - Globals.world.sizeZ() / 2 == 0) {
+							Globals.world.newBlock(x, y, z, new Stream());
 						}
 					}
 				}

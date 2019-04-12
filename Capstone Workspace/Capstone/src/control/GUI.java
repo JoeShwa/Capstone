@@ -64,6 +64,15 @@ public class GUI {
 			break;
 		}
 	}
+	
+	// Shows the player's integrity and energy
+	private void drawStats() {
+		p.noStroke();
+		p.fill(50, 255, 50, 127);
+		p.rect(0, 0, (float) Globals.player.integrity / Globals.player.maxInteg * p.width, 13);
+		p.fill(255, 255, 50, 127);
+		p.rect(0, 14, (float ) Globals.player.energy / Globals.player.maxEnergy * p.width, 13);
+	}
 
 	public void drawGUI() {
 		p.hint(PApplet.DISABLE_DEPTH_TEST);
@@ -88,6 +97,7 @@ public class GUI {
 			if (Globals.player.selItem != null) {
 				Globals.player.selItem.draw(0, 0);
 			}
+			drawStats();
 			break;
 		case INVENTORY:
 			p.noStroke();

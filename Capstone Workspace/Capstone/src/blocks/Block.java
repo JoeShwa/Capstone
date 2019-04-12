@@ -14,6 +14,8 @@ public abstract class Block implements Blocks {
 	static PApplet p;
 	public static PShape sh;
 	static int[][] dirs = { { 0, 0, -1 }, { 0, 0, 1 }, { 1, 0, 0 }, { -1, 0, 0 }, { 0, -1, 0 }, { 0, 1, 0 } };
+	// Slight lighting differences on different sides of blocks makes them easier to see
+	static short[] lightMap = {-5, -5, 0, 0, 0, -10};
 	public boolean isVisible;
 	static World world;
 	public short light;
@@ -36,12 +38,12 @@ public abstract class Block implements Blocks {
 	public void placeEvent(int x, int y, int z, Block prev) {
 		this.light = (short) Math.max(AMBIENCE, prev.light);
 		isDrawn = prev.isDrawn;
-		updateVisibilty(x, y, z);
+		update(x, y, z);
 		for (int i = 0; i < dirs.length; i++) {
 			int nx = x + dirs[i][0];
 			int ny = y + dirs[i][1];
 			int nz = z + dirs[i][2];
-			world.getBlock(nx, ny, nz).updateVisibilty(nx, ny, nz);
+			world.getBlock(nx, ny, nz).update(nx, ny, nz);
 		}
 	}
 
@@ -51,7 +53,7 @@ public abstract class Block implements Blocks {
 			int nx = x + dirs[i][0];
 			int ny = y + dirs[i][1];
 			int nz = z + dirs[i][2];
-			world.getBlock(nx, ny, nz).updateVisibilty(nx, ny, nz);
+			world.getBlock(nx, ny, nz).update(nx, ny, nz);
 		}
 	}
 
@@ -59,7 +61,13 @@ public abstract class Block implements Blocks {
 		return isSolid() || !isTrans();
 	}
 
-	public void updateVisibilty(int x, int y, int z) {
+	// Update triggered when adjacent blocks are placed or destroyed
+	public void update(int x, int y, int z) {
+		updateVisibility(x, y, z);
+	}
+	
+	// Updates whether or not the block is visible
+	private void updateVisibility(int x, int y, int z) {
 		isVisible = false;
 		for (int i = 0; i < 6; i++) {
 			if (world.getBlock(x + dirs[i][0], y + dirs[i][1], z + dirs[i][2]).isTrans()) {
@@ -88,7 +96,7 @@ public abstract class Block implements Blocks {
 					p.beginShape(PConstants.QUADS);
 					p.texture(tex);
 					p.textureMode(PConstants.NORMAL);
-					p.tint(light);
+					p.tint(light + lightMap[i]);
 					for (int j = 0; j < 4; j++) {
 						PVector vec = sh.getVertex(i * 4 + j);
 						float mapX;

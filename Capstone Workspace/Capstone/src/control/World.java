@@ -79,7 +79,7 @@ public class World {
 		for (int x = 0; x < sizeX(); x++) {
 			for (int y = 0; y < sizeY(); y++) {
 				for (int z = 0; z < sizeZ(); z++) {
-					getBlock(x, y, z).updateVisibilty(x, y, z);
+					getBlock(x, y, z).update(x, y, z);
 				}
 			}
 		}

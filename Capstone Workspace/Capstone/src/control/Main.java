@@ -17,7 +17,7 @@ public class Main extends PApplet {
 	// ----------------------------------------------------
 	// ----------------------------------------------------
 
-	static final int REND_DIST = 25;
+	static final int REND_DIST = 40;
 	static final double MOUSE_SENSITIVITY = 0.3;
 	Robot r;
 	World world;
@@ -115,8 +115,7 @@ public class Main extends PApplet {
 				EventManager.addEvent(new LogEvent("Current location: _____"), 210);
 				EventManager.addEvent(new LogEvent("Objective 1: Survive"), 240);
 				EventManager.addEvent(new LogEvent("Objective 2: Research"), 240);
-				
-				
+
 			}
 			runGame();
 		}
