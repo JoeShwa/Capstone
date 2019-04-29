@@ -12,7 +12,7 @@ public class StarRock extends LightBlock {
 	}
 
 	public Item getItem() {
-		return new items.StarRock();
+		return new items.StarRock(1);
 	}
 
 	public void draw(int x, int y, int z) {

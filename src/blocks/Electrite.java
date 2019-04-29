@@ -40,6 +40,6 @@ public class Electrite extends Block {
 	}
 
 	public Item getItem() {
-		return new items.Electrite();
+		return new items.Electrite(1);
 	}
 }

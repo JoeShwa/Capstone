@@ -29,7 +29,7 @@ public class Crystal extends LightBlock {
 	}
 
 	public Item getItem() {
-		return new items.Crystal();
+		return new items.Crystal(1);
 	}
 
 }

@@ -16,7 +16,7 @@ public class Rock extends Block {
 	}
 
 	public Item getItem() {
-		return new items.Rock();
+		return new items.Rock(1);
 	}
 
 	public boolean isTrans() {

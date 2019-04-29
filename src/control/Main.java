@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import blocks.Air;
 import blocks.Block;
+import entities.Bug;
 import entities.Entity;
 import events.EventManager;
 import events.LogEvent;
@@ -80,7 +81,7 @@ public class Main extends PApplet {
 		// Create the event manager
 		EventManager.init(this);
 		// Pre-calculate common sqrts
-		Globals.initSqrts();
+		Globals.init();
 		player = null;
 	}
 
@@ -116,7 +117,9 @@ public class Main extends PApplet {
 				EventManager.addEvent(new LogEvent("Current location: _____"), 210);
 				EventManager.addEvent(new LogEvent("Objective 1: Survive"), 240);
 				EventManager.addEvent(new LogEvent("Objective 2: Research"), 240);
-
+				for(int i = 0; i < 1000; i++) {
+					world.addEntity(new Bug(Math.random() * 100, Math.random() * 100, Math.random() * 100));
+				}
 			}
 			runGame();
 		}
@@ -138,6 +141,7 @@ public class Main extends PApplet {
 			for (int y = 0; y < world.sizeY() / World.SUBDIV; y++) {
 				for (int z = 0; z < world.sizeZ() / World.SUBDIV; z++) {
 					LinkedList<Entity> entities = world.getEntities(x, y, z);
+					// Globals.gui.log(entities.size() + "");
 					for (Iterator<Entity> iter = entities.iterator(); iter.hasNext();) {
 						Entity entity = iter.next();
 						entity.update();
@@ -161,7 +165,6 @@ public class Main extends PApplet {
 		noTint();
 		LinkedList<Entity> entities = world.getEntities(Globals.floor(Globals.player.getX()),
 				Globals.floor(Globals.player.getY()), Globals.floor(Globals.player.getZ()), REND_DIST / World.SUBDIV);
-		entities = world.getEntities();
 		for (Iterator<Entity> iter = entities.iterator(); iter.hasNext();) {
 			Entity entity = iter.next();
 			entity.draw();
@@ -201,7 +204,7 @@ public class Main extends PApplet {
 			}
 			mouseCooldown--;
 			noStroke();
-			player.move(this);
+			player.move();
 			updateEntities();
 			if (Globals.gui.guiState == GUI.GAME) {
 				if (mouseVisible) {

@@ -2,11 +2,14 @@ package items;
 
 import blocks.Block;
 import control.Globals;
-import parts.Part;
 import processing.core.PImage;
 
 public class Sludge extends Item {
 	
+	public Sludge(int amt) {
+		super(amt);
+	}
+
 	static PImage tex = Globals.p.loadImage("textures/sludge.png");
 
 	public String getName() {
@@ -24,10 +27,6 @@ public class Sludge extends Item {
 
 	public void draw(int x, int y) {
 		draw(tex, x, y);
-	}
-	
-	public Part getPart(int x, int y) {
-		return new parts.Sludge(x, y);
 	}
 
 }

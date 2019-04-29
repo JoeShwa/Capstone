@@ -1,10 +1,13 @@
 package items;
 
 import blocks.Block;
-import parts.Part;
 import processing.core.PImage;
 
 public class StarRock extends Item {
+
+	public StarRock(int amt) {
+		super(amt);
+	}
 
 	static PImage tex = p.loadImage("textures/starrock.png");
 
@@ -25,7 +28,4 @@ public class StarRock extends Item {
 		return new blocks.StarRock();
 	}
 
-	public Part getPart(int x, int y) {
-		return new parts.StarRock(x, y);
-	}
 }

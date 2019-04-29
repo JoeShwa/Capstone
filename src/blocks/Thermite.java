@@ -24,7 +24,7 @@ public class Thermite extends Block {
 	}
 
 	public Item getItem() {
-		return new items.Thermite();
+		return new items.Thermite(1);
 	}
 
 }

@@ -1,10 +1,13 @@
 package items;
 
 import blocks.Block;
-import parts.Part;
 import processing.core.PImage;
 
 public class Rock extends Item {
+
+	public Rock(int amt) {
+		super(amt);
+	}
 
 	static PImage tex = blocks.Rock.tex;
 
@@ -23,9 +26,5 @@ public class Rock extends Item {
 
 	public void draw(int x, int y) {
 		draw(tex, x, y);
-	}
-
-	public Part getPart(int x, int y) {
-		return new parts.Rock(x, y);
 	}
 }

@@ -25,7 +25,7 @@ public class Sludge extends Block {
 	}
 
 	public Item getItem() {
-		return new items.Sludge();
+		return new items.Sludge(1);
 	}
 
 }

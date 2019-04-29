@@ -3,9 +3,8 @@ package control;
 import java.util.Iterator;
 import java.util.LinkedList;
 import items.Item;
-import items.Tool;
-import parts.Part;
 import processing.core.PApplet;
+import recipes.Recipe;
 
 public class GUI {
 
@@ -21,6 +20,7 @@ public class GUI {
 	public static final int OBSERVE = 4;
 	public static final int TOOL = 5;
 	public static final int DEATH = 6;
+	public static final int CRAFT = 7;
 	// GUI's current state
 	public int guiState = GAME;
 	// Prevents unintentional spam-switching of GUI state
@@ -67,14 +67,14 @@ public class GUI {
 			break;
 		}
 	}
-	
+
 	// Shows the player's integrity and energy
 	private void drawStats() {
 		p.noStroke();
 		p.fill(50, 255, 50, 127);
 		p.rect(0, 0, (float) Globals.player.integrity / Globals.player.maxInteg * p.width, 13);
 		p.fill(255, 255, 50, 127);
-		p.rect(0, 14, (float ) Globals.player.energy / Globals.player.maxEnergy * p.width, 13);
+		p.rect(0, 14, (float) Globals.player.energy / Globals.player.maxEnergy * p.width, 13);
 	}
 
 	public void drawGUI() {
@@ -147,19 +147,47 @@ public class GUI {
 			p.textSize(32);
 			p.text(workItem.getLore(), 240, p.height / 2 - 256, 1440, 512);
 			break;
-		case TOOL:
-			p.background(0);
-			Tool tool = (Tool) workItem;
-			tool.drawBig();
-			if (Globals.player.selItem != null) {
-				Globals.player.selItem.draw(0, 0);
-			}
-			break;
 		case DEATH:
 			p.background(0);
 			p.textSize(128);
 			p.fill(255, 180, 180);
 			p.text("You died!\nStarting over in " + deathTimer / 60, p.width / 2, p.height / 2);
+			break;
+		case CRAFT:
+			p.background(0);
+			Recipe[] recipes = Globals.player.craftables.getRecipes();
+			if (recipes.length > 0) {
+				for (int i = 0; i < Craftables.REND_X; i++) {
+					for (int j = 0; j < Craftables.REND_Y; j++) {
+						int index = i + j * Craftables.REND_X;
+						if (index < recipes.length) {
+							Item item = recipes[index].getResult();
+							item.draw(i, j);
+						} else {
+							break;
+						}
+					}
+				}
+				int x = (Globals.p.mouseX) / 256;
+				int y = (Globals.p.mouseY - 28) / 256;
+				int ind = x + y * Craftables.REND_X;
+				Recipe selRec = null;
+				if (ind > -1 && ind < recipes.length) {
+					selRec = recipes[ind];
+				}
+				if (selRec != null) {
+					Item[] reqs = selRec.getReqs();
+					for (int i = 0; i < reqs.length; i++) {
+						reqs[i].draw(6, i);
+						Item inInv = Globals.player.inventory.getItem(reqs[i].getName());
+						if(inInv == null || inInv.amount < reqs[i].amount) {
+							Globals.p.stroke(255, 0, 0);
+							Globals.p.strokeWeight(10);
+							Globals.p.line(256 * 6 + 10, i * 256 + 38, 256 * 7 - 10, i * 256 + 256 + 18);
+						}
+					}
+				}
+			}
 			break;
 		}
 		// Draw text log
@@ -217,6 +245,7 @@ public class GUI {
 		stateKey(PApplet.ESC, GAME);
 		stateKey('f', OBSERVE);
 		stateKey('t', TOOL);
+		stateKey('c', CRAFT);
 		// Update GUI
 		switch (guiState) {
 		case GAME:
@@ -224,59 +253,9 @@ public class GUI {
 				pulse += pulseChange;
 			}
 			break;
-		case TOOL:
-			// Tool selection
-			if (Globals.player.selItem instanceof Tool) {
-				workItem = Globals.player.selItem;
-				Globals.player.selItem = null;
-			} else {
-				if (workItem == null || !(workItem instanceof Tool)) {
-					guiState = GAME;
-					log("Select a tool to modify it!");
-					break;
-				}
-			}
-			// Tool editing
-			Tool tool = (Tool) workItem;
-			int mx = (p.mouseX - p.width / 2 + 512) / 64;
-			int my = (p.mouseY - p.height / 2 + 512) / 64;
-			if (p.mousePressed && !(tool.getPart(mx, my) instanceof parts.Rift)) {
-				switch (p.mouseButton) {
-				case PApplet.RIGHT:
-					if (tool.getPart(mx, my) instanceof parts.Air && Globals.player.selItem != null) {
-						if (Globals.player.inventory.useItem(Globals.player.selItem.getName(), 1)) {
-							Part newPart = Globals.player.selItem.getPart(mx, my);
-							tool.setPart(mx, my, newPart);
-							if (Globals.player.selItem.amount < 1) {
-								Globals.player.selItem = null;
-							}
-						}
-					}
-					break;
-				case PApplet.LEFT:
-					Part part = tool.getPart(mx, my);
-					if (!(part instanceof parts.Air)) {
-						Globals.player.inventory.addItem(part.getItem());
-						tool.setPart(mx, my, new parts.Air(mx, my));
-					}
-					break;
-				case PApplet.CENTER:
-					if (tool.getPart(mx, my) instanceof parts.Air && Globals.player.selItem != null) {
-						if (Globals.player.inventory.useItem(Globals.player.selItem.getName(), 1)) {
-							parts.Spawner newPart = new parts.Spawner(mx, my, tool, Globals.player.selItem.getPart(-1, -1));
-							tool.setPart(mx, my, newPart);
-							if (Globals.player.selItem.amount < 1) {
-								Globals.player.selItem = null;
-							}
-						}
-					}
-					break;
-				}
-			}
-			break;
 		case DEATH:
 			deathTimer--;
-			if(deathTimer == 0) {
+			if (deathTimer == 0) {
 				Globals.main.setup();
 			}
 			break;

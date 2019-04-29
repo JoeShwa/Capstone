@@ -1,7 +1,10 @@
 package control;
 
+import java.util.LinkedList;
+
 import blocks.Block;
 import processing.core.PApplet;
+import recipes.Recipe;
 
 public class Globals {
 	
@@ -20,7 +23,8 @@ public class Globals {
 		return sqrts[a];
 	}
 	
-	public static void initSqrts() {
+	public static void init() {
+		// Initializes fast sqrt
 		int num = Block.BIGGEST_LIGHT * 2 + 1;
 		num *= num;
 		sqrts = new double[num * 3];

@@ -1,11 +1,14 @@
 package items;
 
 import blocks.Block;
-import parts.Part;
 import processing.core.PImage;
 
 public class Electrite extends Item {
 	
+	public Electrite(int amt) {
+		super(amt);
+	}
+
 	static PImage tex = blocks.Electrite.tex;
 
 	public String getName() {
@@ -19,10 +22,6 @@ public class Electrite extends Item {
 
 	public Block getBlock() {
 		return new blocks.Electrite();
-	}
-
-	public Part getPart(int x, int y) {
-		return new parts.Electrite(x, y);
 	}
 
 	public void draw(int x, int y) {

@@ -1,10 +1,13 @@
 package control;
 
+import java.util.Iterator;
+
 import blocks.Block;
 import entities.Particle;
 import events.EventManager;
 import items.Item;
 import items.Tool;
+import recipes.Recipe;
 
 public class Player {
 
@@ -19,15 +22,14 @@ public class Player {
 	private double pitch;
 	double yawV;
 	double pitchV;
-	double impX;
-	double impY;
-	double impZ;
 	// Used to loop through all 6 directions
 	static int[][] dirs = { { 0, 0, -1 }, { 0, 0, 1 }, { 1, 0, 0 }, { -1, 0, 0 }, { 0, -1, 0 }, { 0, 1, 0 } };
 	// Player's internal inventory
 	public Inventory inventory;
 	// Items that have been discovered
 	Inventory research;
+	// List of available crafting recipes to player
+	Craftables craftables;
 	// Selected item
 	public Item selItem;
 	// Keyboard input
@@ -38,7 +40,7 @@ public class Player {
 	static final double SCAN_STEP = 0.1;
 	// Player run speed
 	static final double SPEED = 0.02;
-	// Player's ability to move in the air
+	// Player's ab[0]lity to move in the air
 	static final double AIR_CONTROL = 0;
 	// Disables rotation smoothing
 	static final boolean INSTANT_ROTATION = false;
@@ -72,7 +74,7 @@ public class Player {
 		yv = 0;
 		zv = 0;
 		mineCool = 0;
-		maxFuel = 16;
+		maxFuel = 16000000;
 		maxInteg = 1024;
 		integrity = maxInteg;
 		maxEnergy = 16384;
@@ -80,28 +82,46 @@ public class Player {
 		fuel = maxFuel;
 		this.input = input;
 		while (check()) {
-			x = Globals.world.sizeX() * Math.random();
+			x = Globals.world.sizeX() / 2 + 20 * Math.random() - 10;
 			y = Globals.world.sizeY() - 1;
-			y = 100;
-			z = Globals.world.sizeZ() * Math.random();
+			// y = 100;
+			z = Globals.world.sizeZ() / 2 + 20 * Math.random() - 10;
 			int count = 0;
 			while (count < 75 && check()) {
 				y--;
 				count++;
 			}
 		}
-		inventory = new Inventory(100);
-//		Item item = new items.Sludge();
-//		item.amount = 200;
-//		inventory.addItem(item);
-//		item = new items.Rock();
-//		item.amount = 200;
-//		inventory.addItem(item);
-//		item = new items.Thermite();
-//		item.amount = 200;
-//		inventory.addItem(item);
+		inventory = new Inventory(150);
+		inventory.addItem(new items.Rock(40));
+		inventory.addItem(new items.Sludge(40));
+		inventory.addItem(new items.Thermite(40));
+		inventory.addItem(new items.Accelerator(1));
 		research = new Inventory(Integer.MAX_VALUE);
-		inventory.addItem(new Tool());
+		craftables = new Craftables();
+	}
+
+	// Does player's generic movement and updating
+	public void move() {
+		doMouse();
+		pushPlayer();
+		int[] b = fixPos();
+		// Deal impact damage to the player (falling, etc)
+		double impactSpeed = Math.sqrt(xv * xv * b[0] + yv * yv * b[1] + zv * zv * b[2]);
+		impact(impactSpeed);
+		// Check if the player is on the ground
+		boolean onGround = false;
+		if (b[1] == 1) {
+			y++;
+			if (check()) {
+				onGround = true;
+			}
+			y--;
+		}
+		double speed = Math.sqrt(xv * xv + yv * yv + zv * zv);
+		updateVelPos(b, onGround, speed);
+		control(b, onGround, speed);
+		updateValues(onGround);
 	}
 
 	public void research(Item item) {
@@ -126,6 +146,14 @@ public class Player {
 					if (mineCool > 0) {
 						if (inventory.addItem(b.getItem())) {
 							research(b.getItem());
+							for (Iterator<Recipe> iter = Craftables.recipes.iterator(); iter.hasNext();) {
+								Recipe recipe = iter.next();
+								if (recipe.canResearch(inventory)) {
+									iter.remove();
+									research(recipe.getResult());
+									craftables.addRecipe(recipe);
+								}
+							}
 							Globals.world.breakBlock(hit[0], hit[1], hit[2]);
 							// Pushes an event to try to mine again when possible, allowing the player to
 							// hold left click
@@ -159,12 +187,26 @@ public class Player {
 				Globals.gui.showResearch(items[ind]);
 			}
 			break;
+		case GUI.CRAFT:
+			Recipe[] recipes = craftables.getRecipes();
+			int mx = (Globals.p.mouseX) / 256;
+			int my = (Globals.p.mouseY - 28) / 256;
+			ind = mx + my * Craftables.REND_X;
+			Recipe selRec = null;
+			if (ind > -1 && ind < recipes.length) {
+				selRec = recipes[ind];
+			}
+			if (selRec != null) {
+				if (selRec.canCraft(inventory)) {
+					inventory.addItem(selRec.craft(inventory));
+				}
+			}
+			break;
 		}
 		// Do gui's left click
 		if (didClick) {
 			Globals.gui.leftClick();
 		}
-
 	}
 
 	public void rightClick() {
@@ -173,7 +215,7 @@ public class Player {
 			if (selItem != null) {
 				if (selItem instanceof Tool) {
 					Tool tool = (Tool) selItem;
-					tool.activate();
+					tool.rightClick();
 				} else {
 					// Get coords where player is looking
 					int[] hit = scan(true);
@@ -226,17 +268,12 @@ public class Player {
 		return null;
 	}
 
-	public void move(Main m) {
-		// Update the tool if the player is selecting a tool
-		if (selItem instanceof Tool) {
-			Tool tool = (Tool) selItem;
-			tool.update();
-		}
-		// Does mouse movement
+	// Does mouse movement
+	public void doMouse() {
 		if (Globals.gui.guiState == GUI.GAME && Globals.p.focused) {
-			yawV += Math.toRadians(m.mouseX - m.width / 2) * Main.MOUSE_SENSITIVITY;
-			pitchV += Math.toRadians(m.mouseY - m.height / 2) * Main.MOUSE_SENSITIVITY;
-			m.r.mouseMove(m.width / 2, m.height / 2);
+			yawV += Math.toRadians(Globals.main.mouseX - Globals.main.width / 2) * Main.MOUSE_SENSITIVITY;
+			pitchV += Math.toRadians(Globals.main.mouseY - Globals.main.height / 2) * Main.MOUSE_SENSITIVITY;
+			Globals.main.r.mouseMove(Globals.main.width / 2, Globals.main.height / 2);
 			if (INSTANT_ROTATION) {
 				yaw += yawV * 1.5;
 				pitch += pitchV * 1.5;
@@ -244,16 +281,20 @@ public class Player {
 				pitchV = 0;
 			}
 		}
-		// Moves player
+	}
+
+	// Moves player
+	public void pushPlayer() {
 		x += xv;
 		y += yv;
 		z += zv;
 		wrapPos();
-		// Bounces player back on collision
+	}
+
+	// Makes player not be stuck in wall
+	public int[] fixPos() {
 		int bestC = 4;
-		int bI = 0;
-		int bJ = 0;
-		int bK = 0;
+		int[] b = new int[3];
 		for (int i = 0; i < 2; i++) {
 			for (int j = 0; j < 2; j++) {
 				for (int k = 0; k < 2; k++) {
@@ -262,9 +303,9 @@ public class Player {
 					z -= zv * k;
 					if (!check() && i + j + k < bestC) {
 						bestC = i + j + k;
-						bI = i;
-						bJ = j;
-						bK = k;
+						b[0] = i;
+						b[1] = j;
+						b[2] = k;
 
 					}
 					x += xv * i;
@@ -274,30 +315,21 @@ public class Player {
 			}
 		}
 		if (bestC == 4) {
-			bI = 1;
-			bJ = 1;
-			bK = 1;
+			b[0] = 1;
+			b[1] = 1;
+			b[2] = 1;
 		}
-		// Deal impact damage to the player (falling, etc)
-		double impactSpeed = Math.sqrt(xv * xv * bI + yv * yv * bJ + zv * zv * bK);
-		impact(impactSpeed);
-		x -= xv * bI;
-		y -= yv * bJ;
-		z -= zv * bK;
-		xv *= 1 - bI;
-		yv *= 1 - bJ;
-		zv *= 1 - bK;
-		// Check if the player is on the ground
-		boolean onGround = false;
-		if (bJ == 1) {
-			y++;
-			if (check()) {
-				onGround = true;
-			}
-			y--;
-		}
+		x -= xv * b[0];
+		y -= yv * b[1];
+		z -= zv * b[2];
+		return b;
+	}
+
+	public void updateVelPos(int[] b, boolean onGround, double speed) {
+		xv *= 1 - b[0];
+		yv *= 1 - b[1];
+		zv *= 1 - b[2];
 		// Stop player from exceeding 1 block per frame
-		double speed = Math.sqrt(xv * xv + yv * yv + zv * zv);
 		if (speed > 1) {
 			xv /= speed;
 			yv /= speed;
@@ -314,23 +346,26 @@ public class Player {
 		// Dampen rotation
 		yawV *= 0.3;
 		pitchV *= 0.3;
-		// Movement from player input
+	}
+
+	// Movement from player input
+	public void control(int[] b, boolean onGround, double speed) {
 		boolean usingJetpack = false;
 		if (Globals.gui.guiState == GUI.GAME) {
 			double buttons = 0;
-			if (m.input['w']) {
+			if (Globals.main.input['w']) {
 				buttons++;
 			}
-			if (m.input['a']) {
+			if (Globals.main.input['a']) {
 				buttons++;
 			}
-			if (m.input['s']) {
+			if (Globals.main.input['s']) {
 				buttons++;
 			}
-			if (m.input['d']) {
+			if (Globals.main.input['d']) {
 				buttons++;
 			}
-			if (m.input[' '] && fuel > 0) {
+			if (Globals.main.input[' '] && fuel > 0) {
 				fuel--;
 				usingJetpack = true;
 			}
@@ -358,19 +393,19 @@ public class Player {
 			double xvc = 0;
 			double yvc = 0;
 			double zvc = 0;
-			if (m.input['w']) {
+			if (Globals.main.input['w']) {
 				xvc += speed * Math.cos(yaw);
 				zvc += speed * Math.sin(yaw);
 			}
-			if (m.input['s']) {
+			if (Globals.main.input['s']) {
 				xvc -= speed * Math.cos(yaw);
 				zvc -= speed * Math.sin(yaw);
 			}
-			if (m.input['a']) {
+			if (Globals.main.input['a']) {
 				xvc -= speed * Math.cos(yaw + Math.toRadians(90));
 				zvc -= speed * Math.sin(yaw + Math.toRadians(90));
 			}
-			if (m.input['d']) {
+			if (Globals.main.input['d']) {
 				xvc += speed * Math.cos(yaw + Math.toRadians(90));
 				zvc += speed * Math.sin(yaw + Math.toRadians(90));
 			}
@@ -388,6 +423,10 @@ public class Player {
 		if (!usingJetpack) {
 			yv += World.GRAVITY;
 		}
+	}
+
+	// Uses/restores player's internal resources
+	public void updateValues(boolean onGround) {
 		// Change the mining cooldown
 		if (mineCool > 0) {
 			mineCool--;
@@ -445,27 +484,17 @@ public class Player {
 	// Checks for generic block collisions
 	private boolean check() {
 		boolean collide = false;
-		impYaw = 0;
-		impPitch = 0;
-		int count = 0;
-		for(double ys = 0; ys < Math.PI * 2; ys += Math.PI / 5) {
-			for(double ps = 0; ps < Math.PI * 2; ps += Math.PI / 5) {
-				double bx = x + (Math.cos(ys) * Math.sin(ps)) * 0.4;
-				double by = y + Math.cos(ps) * 0.4;
-				double bz = z + (Math.sin(ys) * Math.sin(ps)) * 0.4;
+		for (double ys = 0; ys < Math.PI * 2; ys += Math.PI / 32) {
+			for (double ps = -0.2; ps <= 0.2; ps += 0.4) {
+				double bx = x + Math.cos(ys) * 0.4;
+				double by = y + ps;
+				double bz = z + Math.sin(ys) * 0.4;
 				Block block = Globals.world.getBlock(Globals.floor(bx), Globals.floor(by), Globals.floor(bz));
 				if (block.isSolid()) {
 					collide = true;
-					count++;
-					impX += bx - x;
-					impY += by - y;
-					impZ += bz - z;
 				}
 			}
 		}
-		impX /= count;
-		impY /= count;
-		impZ /= count;
 		return collide;
 	}
 

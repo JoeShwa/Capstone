@@ -1,11 +1,14 @@
 package items;
 
 import blocks.Block;
-import parts.Part;
 import processing.core.PImage;
 
 public class Thermite extends Item {
 	
+	public Thermite(int amt) {
+		super(amt);
+	}
+
 	static PImage tex = blocks.Thermite.tex;
 
 	public String getName() {
@@ -19,10 +22,6 @@ public class Thermite extends Item {
 
 	public Block getBlock() {
 		return new blocks.Thermite();
-	}
-
-	public Part getPart(int x, int y) {
-		return new parts.Thermite(x, y);
 	}
 
 	public void draw(int x, int y) {

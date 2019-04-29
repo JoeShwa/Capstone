@@ -22,6 +22,10 @@ public class Inventory {
 		size = 0;
 		types = 0;
 	}
+	
+	public Item getItem(String name) {
+		return content.get(name);
+	}
 
 	public Item[] getItems() {
 		Item[] out = new Item[content.size()];

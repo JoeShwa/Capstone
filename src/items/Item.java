@@ -15,6 +15,10 @@ public abstract class Item implements Items {
 	public Item() {
 		amount = 1;
 	}
+	
+	public Item(int amt) {
+		amount = amt;
+	}
 
 	public void draw(PImage tex, int x, int y) {
 		p.noStroke();
