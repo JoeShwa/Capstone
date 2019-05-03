@@ -7,4 +7,8 @@ public abstract class Enemy extends Entity {
 		this.y = y;
 		this.z = z;
 	}
+	
+	public void triggerNear(double relX, double relY, double relZ) {
+		
+	}
 }

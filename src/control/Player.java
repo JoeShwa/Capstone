@@ -1,8 +1,11 @@
 package control;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 
 import blocks.Block;
+import entities.Enemy;
+import entities.Entity;
 import entities.Particle;
 import events.EventManager;
 import items.Item;
@@ -74,7 +77,7 @@ public class Player {
 		yv = 0;
 		zv = 0;
 		mineCool = 0;
-		maxFuel = 16000000;
+		maxFuel = 16;
 		maxInteg = 1024;
 		integrity = maxInteg;
 		maxEnergy = 16384;
@@ -84,7 +87,8 @@ public class Player {
 		while (check()) {
 			x = Globals.world.sizeX() / 2 + 20 * Math.random() - 10;
 			y = Globals.world.sizeY() - 1;
-			// y = 100;
+			x = 0;
+			y = 100;
 			z = Globals.world.sizeZ() / 2 + 20 * Math.random() - 10;
 			int count = 0;
 			while (count < 75 && check()) {
@@ -93,12 +97,26 @@ public class Player {
 			}
 		}
 		inventory = new Inventory(150);
-		inventory.addItem(new items.Rock(40));
-		inventory.addItem(new items.Sludge(40));
-		inventory.addItem(new items.Thermite(40));
-		inventory.addItem(new items.Accelerator(1));
+//		inventory.addItem(new items.Rock(40));
+//		inventory.addItem(new items.Sludge(40));
+//		inventory.addItem(new items.Thermite(40));
+//		inventory.addItem(new items.Accelerator(1));
 		research = new Inventory(Integer.MAX_VALUE);
 		craftables = new Craftables();
+	}
+	
+	
+
+	// Activates code ran by enemies that are near by
+	public void triggerEnemies() {
+		LinkedList<Entity> ents = Globals.world.getNearEntities(Globals.floor(x), Globals.floor(y), Globals.floor(z),
+				3);
+		for (Entity e : ents) {
+			if (e instanceof Enemy) {
+				double[] rels = Globals.relPos(x, y, z, e.x, e.y, e.z);
+				((Enemy) e).triggerNear(rels[0], rels[1], rels[2]);
+			}
+		}
 	}
 
 	// Does player's generic movement and updating
@@ -122,6 +140,7 @@ public class Player {
 		updateVelPos(b, onGround, speed);
 		control(b, onGround, speed);
 		updateValues(onGround);
+		triggerEnemies();
 	}
 
 	public void research(Item item) {

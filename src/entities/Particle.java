@@ -1,6 +1,8 @@
 
 package entities;
 
+import java.util.LinkedList;
+
 import blocks.Block;
 import control.Globals;
 import control.World;
@@ -56,15 +58,6 @@ public abstract class Particle extends Entity {
 	}
 	
 	public void update() {
-		int[] b = fixPos();
-		xv -= xv * 2 * b[0];
-		yv -= yv * 2 * b[1];
-		zv -= zv * 2 * b[2];
-		if(b[0] == 1 || b[1] == 1 || b[2] == 1) {
-			xv *= 0.75;
-			yv *= 0.75;
-			zv *= 0.75;
-		}
 		if(xv * xv + yv * yv + zv * zv > 0.01 * 0.01) {
 			movement = 30;
 		}
@@ -92,7 +85,7 @@ public abstract class Particle extends Entity {
 	
 	// Overrideable to give particles special properties on impact with block
 	public void hit() {
-		//kill();
+		kill();
 	}
 	
 	// Overrideable to give particles special properties on impact with entity
@@ -100,8 +93,18 @@ public abstract class Particle extends Entity {
 		kill();
 	}
 	
+	public boolean onPoint(double x, double y, double z) {
+		return this.x == x && this.y == y && this.z == z;
+	}
+	
 	//Checks if the particle is touching an entity
 	public Entity checkEntity() {
+		LinkedList<Entity> ents = Globals.world.getNearEntities(Globals.floor(x), Globals.floor(y), Globals.floor(z), 1);
+		for(Entity e : ents) {
+			if(this != e && e.onPoint(x, y, z)) {
+				return e;
+			}
+		}
 		return null;
 	}
 

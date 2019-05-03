@@ -117,9 +117,7 @@ public class Main extends PApplet {
 				EventManager.addEvent(new LogEvent("Current location: _____"), 210);
 				EventManager.addEvent(new LogEvent("Objective 1: Survive"), 240);
 				EventManager.addEvent(new LogEvent("Objective 2: Research"), 240);
-				for(int i = 0; i < 1000; i++) {
-					world.addEntity(new Bug(Math.random() * 100, Math.random() * 100, Math.random() * 100));
-				}
+				Spawner.spawn();
 			}
 			runGame();
 		}

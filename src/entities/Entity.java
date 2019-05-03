@@ -53,6 +53,13 @@ public abstract class Entity implements Entities {
 	}
 
 	public void update() {
+		double speed = xv * xv + yv * yv + zv * zv;
+		if (speed > 1) {
+			speed = Math.sqrt(speed);
+			xv /= speed;
+			yv /= speed;
+			zv /= speed;
+		}
 		x += xv;
 		y += yv;
 		z += zv;

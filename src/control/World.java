@@ -2,6 +2,7 @@ package control;
 
 import java.util.LinkedList;
 
+import blocks.Air;
 import blocks.Block;
 import entities.Entity;
 
@@ -39,7 +40,27 @@ public class World {
 	}
 
 	// Gets all the entities in all the chunks in the cubic radius around xyz
-	public LinkedList<Entity> getEntities(int x, int y, int z, int rad) {
+	public LinkedList<Entity> getEntities(int cx, int cy, int cz, int rad) {
+		cx /= SUBDIV;
+		cy /= SUBDIV;
+		cz /= SUBDIV;
+		LinkedList<Entity> out = new LinkedList<Entity>();
+		for (int x = -rad; x <= rad; x++) {
+			for (int y = -rad; y <= rad; y++) {
+				int depth = rad - (Math.abs(x) + Math.abs(y));
+				for (int z = -depth; z <= depth; z++) {
+					int rx = x + cx;
+					int ry = y + cy;
+					int rz = z + cz;
+					out.addAll(getEntities(rx, ry, rz));
+				}
+			}
+		}
+		return out;
+	}
+	
+	// Gets the nearby entities in chunks 3x3x3 around the area
+	public LinkedList<Entity> getNearEntities(int x, int y, int z, int rad) {
 		x /= SUBDIV;
 		y /= SUBDIV;
 		z /= SUBDIV;

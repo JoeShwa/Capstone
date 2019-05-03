@@ -7,4 +7,6 @@ public interface Entities {
 	public void update();
 	
 	public boolean check();
+	
+	public boolean onPoint(double x, double y, double z);
 }

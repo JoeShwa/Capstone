@@ -147,7 +147,7 @@ public class WorldGen extends Thread {
 								world.newBlock(x, y, z, new StarRock());
 							}
 						} else {
-							if (Math.random() < 0.01) {
+							if (Math.random() < 0.02) {
 								world.newBlock(x, y, z, new Thermite());
 							}
 						}
