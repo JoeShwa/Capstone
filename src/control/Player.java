@@ -52,7 +52,7 @@ public class Player {
 	// How strong the player's jump is
 	static final double JUMP = 0.15;
 	// How long the player's jetpack lasts
-	int maxFuel;
+	public int maxFuel;
 	// Amount of jetpack fuel left
 	double fuel;
 	// Whether the player can mine or not
@@ -62,7 +62,7 @@ public class Player {
 	// Player's structural integrity
 	int integrity;
 	// Player's maximum structural integrity
-	int maxInteg;
+	public int maxInteg;
 	// Player's energy level
 	public int energy;
 	// Player's maximum energy level
@@ -77,7 +77,7 @@ public class Player {
 		yv = 0;
 		zv = 0;
 		mineCool = 0;
-		maxFuel = 16;
+		maxFuel = 1600000;
 		maxInteg = 1024;
 		integrity = maxInteg;
 		maxEnergy = 16384;
@@ -88,7 +88,7 @@ public class Player {
 			x = Globals.world.sizeX() / 2 + 20 * Math.random() - 10;
 			y = Globals.world.sizeY() - 1;
 			x = 0;
-			y = 100;
+			y = 200;
 			z = Globals.world.sizeZ() / 2 + 20 * Math.random() - 10;
 			int count = 0;
 			while (count < 75 && check()) {
@@ -101,11 +101,10 @@ public class Player {
 //		inventory.addItem(new items.Sludge(40));
 //		inventory.addItem(new items.Thermite(40));
 //		inventory.addItem(new items.Accelerator(1));
+		inventory.addItem(new items.Empowerer());
 		research = new Inventory(Integer.MAX_VALUE);
 		craftables = new Craftables();
 	}
-	
-	
 
 	// Activates code ran by enemies that are near by
 	public void triggerEnemies() {
@@ -143,12 +142,28 @@ public class Player {
 		triggerEnemies();
 	}
 
-	public void research(Item item) {
-		item.amount = 0;
+	public void addResearch(Item item) {
+		try {
+			item = item.getClass().newInstance();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		if (!research.hasItem(item.getName())) {
 			Globals.gui.log("New item discovered: " + item.getName());
 		}
 		research.addItem(item);
+	}
+
+	public void learn(Item item) {
+		addResearch(item);
+		for (Iterator<Recipe> iter = Craftables.recipes.iterator(); iter.hasNext();) {
+			Recipe recipe = iter.next();
+			if (recipe.canResearch(inventory)) {
+				iter.remove();
+				addResearch(recipe.getResult());
+				craftables.addRecipe(recipe);
+			}
+		}
 	}
 
 	public void leftClick() {
@@ -162,17 +177,11 @@ public class Player {
 				if (hit != null) {
 					Block b = Globals.world.getBlock(hit[0], hit[1], hit[2]);
 					mineCool = b.getHardness();
-					if (mineCool > 0) {
-						if (inventory.addItem(b.getItem())) {
-							research(b.getItem());
-							for (Iterator<Recipe> iter = Craftables.recipes.iterator(); iter.hasNext();) {
-								Recipe recipe = iter.next();
-								if (recipe.canResearch(inventory)) {
-									iter.remove();
-									research(recipe.getResult());
-									craftables.addRecipe(recipe);
-								}
-							}
+					if (mineCool > 0 && energy >= mineCool) {
+						energy -= mineCool;
+						Item item = b.getItem();
+						if (inventory.addItem(item)) {
+							learn(item);
 							Globals.world.breakBlock(hit[0], hit[1], hit[2]);
 							// Pushes an event to try to mine again when possible, allowing the player to
 							// hold left click
@@ -217,7 +226,9 @@ public class Player {
 			}
 			if (selRec != null) {
 				if (selRec.canCraft(inventory)) {
-					inventory.addItem(selRec.craft(inventory));
+					Item crafted = selRec.craft(inventory);
+					inventory.addItem(crafted);
+					learn(crafted);
 				}
 			}
 			break;
@@ -239,7 +250,9 @@ public class Player {
 					// Get coords where player is looking
 					int[] hit = scan(true);
 					// Place block if it can, and use the item
-					if (hit != null && selItem.getBlock() != null && inventory.useItem(selItem.getName(), 1)) {
+					if (hit != null && selItem.getBlock() != null && inventory.useItem(selItem.getName(), 1)
+							&& energy > 1) {
+						energy -= 2;
 						Globals.world.setBlock(hit[0], hit[1], hit[2], selItem.getBlock());
 						if (selItem.amount == 0) {
 							selItem = null;
@@ -256,6 +269,9 @@ public class Player {
 		Globals.gui.rightClick();
 	}
 
+	// Returns coordinates of collision of vector from player facing direction of
+	// player, needAir determines whether or not the returned coordinates should be
+	// air instead of a block
 	public int[] scan(boolean needAir) {
 		double rx = x;
 		double ry = y;
@@ -460,12 +476,11 @@ public class Player {
 				energy += fuel - maxFuel;
 				fuel = maxFuel;
 			}
-
 			energy -= 4;
 		}
 		// Repair integrity at the cost of energy
-		if (energy > maxEnergy / 4 && integrity < maxInteg) {
-			energy -= 32;
+		if (energy > maxEnergy / 4 && integrity < maxInteg && Globals.p.frameCount % 8 == 0) {
+			energy -= 16;
 			integrity++;
 		}
 		// Kill the player when integrity runs out

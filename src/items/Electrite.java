@@ -8,6 +8,10 @@ public class Electrite extends Item {
 	public Electrite(int amt) {
 		super(amt);
 	}
+	
+	public Electrite() {
+		super(0);
+	}
 
 	static PImage tex = blocks.Electrite.tex;
 

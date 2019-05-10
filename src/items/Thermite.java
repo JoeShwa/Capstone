@@ -8,6 +8,10 @@ public class Thermite extends Item {
 	public Thermite(int amt) {
 		super(amt);
 	}
+	
+	public Thermite() {
+		super(0);
+	}
 
 	static PImage tex = blocks.Thermite.tex;
 
@@ -17,7 +21,7 @@ public class Thermite extends Item {
 
 	public String getLore() {
 		return "An extremely volatile powder capable of producing immense heat.\n\n"
-				+ "If it hits something hard enough, it will ignite and rapidly heat things around it.";
+				+ "If ignited by Electrite, it may generate small amounts of energy.";
 	}
 
 	public Block getBlock() {

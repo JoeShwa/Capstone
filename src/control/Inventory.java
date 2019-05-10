@@ -10,7 +10,7 @@ public class Inventory {
 	int maxSize;
 	int types;
 
-	static final int REND_X = 8;
+	static final int REND_X = 7;
 	static final int REND_Y = 4;
 	static final int MAX_TYPES = REND_X * REND_Y;
 
@@ -39,6 +39,10 @@ public class Inventory {
 
 	public int getMaxSize() {
 		return maxSize;
+	}
+	
+	public void setMaxSize(int size) {
+		this.maxSize = size;
 	}
 
 	// Returns how full the inventory is compared to its max capacity, on a scale of

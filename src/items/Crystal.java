@@ -9,8 +9,10 @@ public class Crystal extends Item {
 	public Crystal(int amt) {
 		super(amt);
 	}
-
-	static PImage tex = Globals.p.loadImage("textures/crystal.png");
+	
+	public Crystal() {
+		super(0);
+	}
 
 	public String getName() {
 		return "Crystal";
@@ -26,7 +28,7 @@ public class Crystal extends Item {
 	}
 
 	public void draw(int x, int y) {
-		draw(tex, x, y);
+		draw(blocks.Crystal.tex, x, y);
 	}
 
 }

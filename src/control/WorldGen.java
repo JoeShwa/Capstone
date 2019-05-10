@@ -1,14 +1,19 @@
 package control;
 
+import java.util.Random;
+
 import blocks.*;
 
 public class WorldGen extends Thread {
 
-	World world;
-	public int phase = 0;
 	static final int CAVES = 25;
 	static final int CAVE_LEN = 40;
 	static final int CAVE_RAD = 7;
+	
+	World world;
+	public int phase = 0;
+	Random r;
+	
 
 	private double mod(double n1, double n2) {
 		if (n1 < 0) {
@@ -16,21 +21,40 @@ public class WorldGen extends Thread {
 		}
 		return n1 % n2;
 	}
+	
+	public double interp(double x, double n1, double n2) {
+		return (6 * Math.pow(x, 5) - 15 * Math.pow(x, 4) + 10 * Math.pow(x, 3)) * (n2 - n1) + n1;
+	}
 
-	public void noise(double x, double y) {
-
+	public double noise(double x, long seedOff) {
+		r.setSeed((long) Globals.mod(x, 10) * 31415926 + seedOff);
+		double n1 = r.nextDouble();
+		r.setSeed((long) Globals.mod(x + 1, 10) * 31415926 + seedOff);
+		double n2 = r.nextDouble();
+		return interp(x - (long) x, n1, n2);
+	}
+	
+	public double noise(double x, double y) {
+		return interp(y - (long) y, noise(x, (long) y * 131072), noise(x + 1, (long) y * 131072));
+	}
+	
+	public double noise(double x, double y, double z) {
+		return 0;
 	}
 
 	public WorldGen(World world) {
 		this.world = world;
+		r = new Random();
 	}
 
 	public void run() {
-		fillAir(0, 0, 0, 100, 200, 100);
+		fillAir(0, 0, 0, 100, 100 * World.DIM_COUNT, 100);
 		phase = 0;
-		generateDim0(100, 200);
+		generateDim0(200, 300);
 		phase++;
-		generateDim1(0, 100);
+		generateDim1(100, 200);
+		phase++;
+		generateDim2(0, 100);
 		phase++;
 		// Run placeEvents on all blocks, now that none are null
 		for (int x = 0; x < world.sizeX(); x++) {
@@ -55,11 +79,24 @@ public class WorldGen extends Thread {
 			}
 		}
 	}
+	
+	public void generateDim2(int minY, int maxY) {
+		for(int x = 0; x < world.sizeX(); x++) {
+			for(int y = minY; y < maxY; y++) {
+				for(int z = 0; z < world.sizeZ(); z++) {
+					if(Globals.p.noise((float) x / 20, (float) y / 5, (float) z / 20) < 0.25) {
+						world.newBlock(x, y, z, new Eskirite());
+					}
+				}
+			}
+		}
+		addPortal(minY, maxY + 1);
+	}
 
 	public void generateDim1(int minY, int maxY) {
 		for (int x = 0; x < world.sizeX(); x++) {
 			for (int z = 0; z < world.sizeY(); z++) {
-				int height = (int) -(Globals.p.noise((float) x / 20, (float) z / 20) * 20) + maxY - 1;
+				int height = (int) -(noise((float) x / 10, (float) z / 10) * 20) + maxY - 1;
 				int y;
 				for (y = maxY - 1; y > height; y--) {
 					if (Math.random() < 0.995) {
@@ -171,7 +208,7 @@ public class WorldGen extends Thread {
 					world.newBlock(x, minY, z, new Rift());
 				} else {
 					for (int y = minY; y < maxY; y++) {
-						if (Math.random() < 0.99) {
+						if (Math.random() < 0.995) {
 							world.newBlock(x, y, z, new Air());
 						} else {
 							world.newBlock(x, y, z, new Rift());

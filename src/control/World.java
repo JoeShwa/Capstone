@@ -14,7 +14,7 @@ public class World {
 	private LinkedList<Entity>[][][] entities;
 
 	public static final double GRAVITY = 0.01;
-	public static final int DIM_COUNT = 2;
+	public static final int DIM_COUNT = 3;
 	public static final int SUBDIV = 5;
 
 	@SuppressWarnings("unchecked")

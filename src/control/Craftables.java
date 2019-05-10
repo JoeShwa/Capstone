@@ -16,6 +16,10 @@ public class Craftables {
 		recipes = new LinkedList<>();
 		recipes.add(new recipes.Accelerator());
 		recipes.add(new recipes.Empowerer());
+		recipes.add(new recipes.UpgradeCore());
+		recipes.add(new recipes.IntegrityUpgrade());
+		recipes.add(new recipes.EnergyUpgrade());
+		recipes.add(new recipes.InventoryUpgrade());
 	}
 
 	TreeMap<String, Recipe> content;

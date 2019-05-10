@@ -8,6 +8,10 @@ public class StarRock extends Item {
 	public StarRock(int amt) {
 		super(amt);
 	}
+	
+	public StarRock() {
+		super(0);
+	}
 
 	static PImage tex = p.loadImage("textures/starrock.png");
 

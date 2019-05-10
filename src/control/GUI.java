@@ -21,6 +21,7 @@ public class GUI {
 	public static final int TOOL = 5;
 	public static final int DEATH = 6;
 	public static final int CRAFT = 7;
+	public static final int STATS = 8;
 	// GUI's current state
 	public int guiState = GAME;
 	// Prevents unintentional spam-switching of GUI state
@@ -180,7 +181,7 @@ public class GUI {
 					for (int i = 0; i < reqs.length; i++) {
 						reqs[i].draw(6, i);
 						Item inInv = Globals.player.inventory.getItem(reqs[i].getName());
-						if(inInv == null || inInv.amount < reqs[i].amount) {
+						if (inInv == null || inInv.amount < reqs[i].amount) {
 							Globals.p.stroke(255, 0, 0);
 							Globals.p.strokeWeight(10);
 							Globals.p.line(256 * 6 + 10, i * 256 + 38, 256 * 7 - 10, i * 256 + 256 + 18);
@@ -188,6 +189,15 @@ public class GUI {
 					}
 				}
 			}
+			break;
+		case STATS:
+			p.background(0);
+			p.textSize(64);
+			p.fill(255);
+			p.text("Integrity: " + Globals.player.integrity + "/" + Globals.player.maxInteg, p.width / 2, p.height / 4);
+			p.text("Energy: " + Globals.player.energy + "/" + Globals.player.maxEnergy, p.width / 2, p.height * 2 / 4);
+			p.text("Inventory Space: " + Globals.player.inventory.getSize() + "/"
+					+ Globals.player.inventory.getMaxSize(), p.width / 2, p.height * 3 / 4);
 			break;
 		}
 		// Draw text log
@@ -246,6 +256,7 @@ public class GUI {
 		stateKey('f', OBSERVE);
 		stateKey('t', TOOL);
 		stateKey('c', CRAFT);
+		stateKey('u', STATS);
 		// Update GUI
 		switch (guiState) {
 		case GAME:

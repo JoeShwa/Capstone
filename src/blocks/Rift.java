@@ -1,6 +1,5 @@
 package blocks;
 
-import control.Globals;
 import items.Item;
 import processing.core.PImage;
 
@@ -14,7 +13,7 @@ public class Rift extends LightBlock {
 	}
 
 	public int getBrightness() {
-		return 3;
+		return 4;
 	}
 
 	public boolean isTrans() {

@@ -14,11 +14,16 @@ public class Accelerator extends Tool {
 	public Accelerator(int amt) {
 		super(amt);
 	}
+	
+	public Accelerator() {
+		super(0);
+	}
 
 	static PImage tex = Globals.p.loadImage("textures/accelerator.png");
 
 	public void rightClick() {
-		if (canUse) {
+		if (canUse && Globals.player.energy >= 128) {
+			Globals.player.energy -= 128;
 			Inventory inv = Globals.player.inventory;
 			if (inv.hasItem("Thermite") && inv.hasItem("Sludge") && inv.hasItem("Rock")) {
 				inv.useItem("Thermite", 1);

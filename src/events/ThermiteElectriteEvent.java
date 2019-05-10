@@ -20,6 +20,9 @@ public class ThermiteElectriteEvent extends Event {
 	public void trigger() {
 		if(Globals.world.getBlock(x, y, z) instanceof Thermite) {
 			elect.energy += 1024;
+			if(elect.energy > 1024) {
+				elect.energy = 1024;
+			}
 			Globals.world.setBlock(x, y, z, new Air());
 		}
 		if(Globals.player.energy < Globals.player.maxEnergy) {

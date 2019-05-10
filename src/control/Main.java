@@ -139,7 +139,6 @@ public class Main extends PApplet {
 			for (int y = 0; y < world.sizeY() / World.SUBDIV; y++) {
 				for (int z = 0; z < world.sizeZ() / World.SUBDIV; z++) {
 					LinkedList<Entity> entities = world.getEntities(x, y, z);
-					// Globals.gui.log(entities.size() + "");
 					for (Iterator<Entity> iter = entities.iterator(); iter.hasNext();) {
 						Entity entity = iter.next();
 						entity.update();
@@ -243,6 +242,7 @@ public class Main extends PApplet {
 	}
 
 	public void showObservation() {
+		noStroke();
 		if (obsTime == -1) {
 			background(0);
 			obsTime = 0;
@@ -250,7 +250,7 @@ public class Main extends PApplet {
 			doCamera(player.getX(), player.getY(), player.getZ(), player.getYaw(), player.getPitch());
 			// Fixes clipping
 			perspective(PI / 3, (float) width / height, 0.01f, 1000000000);
-			int dist = 150;
+			int dist = 100;
 			for (int x = -dist; x <= dist; x++) {
 				for (int y = -dist; y <= dist; y++) {
 					for (int z = -dist; z <= dist; z++) {
