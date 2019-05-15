@@ -189,6 +189,7 @@ public class Main extends PApplet {
 			// Globals.gui.log("Average render time: " + avg / 300);
 			avg = 0;
 		}
+		Globals.gui.log(frameRate + "");
 	}
 
 	public void runGame() {

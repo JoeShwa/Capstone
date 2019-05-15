@@ -87,8 +87,7 @@ public class Player {
 		while (check()) {
 			x = Globals.world.sizeX() / 2 + 20 * Math.random() - 10;
 			y = Globals.world.sizeY() - 1;
-			x = 0;
-			y = 200;
+			y = 100;
 			z = Globals.world.sizeZ() / 2 + 20 * Math.random() - 10;
 			int count = 0;
 			while (count < 75 && check()) {

@@ -9,11 +9,10 @@ public class WorldGen extends Thread {
 	static final int CAVES = 25;
 	static final int CAVE_LEN = 40;
 	static final int CAVE_RAD = 7;
-	
+
 	World world;
 	public int phase = 0;
 	Random r;
-	
 
 	private double mod(double n1, double n2) {
 		if (n1 < 0) {
@@ -21,25 +20,27 @@ public class WorldGen extends Thread {
 		}
 		return n1 % n2;
 	}
-	
+
 	public double interp(double x, double n1, double n2) {
 		return (6 * Math.pow(x, 5) - 15 * Math.pow(x, 4) + 10 * Math.pow(x, 3)) * (n2 - n1) + n1;
 	}
 
-	public double noise(double x, long seedOff) {
-		r.setSeed((long) Globals.mod(x, 10) * 31415926 + seedOff);
+	private double hnoise(double x, double scale, long off) {
+		r.setSeed((long) Globals.mod(x, scale) * 31415926 + off);
 		double n1 = r.nextDouble();
-		r.setSeed((long) Globals.mod(x + 1, 10) * 31415926 + seedOff);
+		r.setSeed((long) Globals.mod(x + 1, scale) * 31415926 + off);
 		double n2 = r.nextDouble();
 		return interp(x - (long) x, n1, n2);
 	}
-	
-	public double noise(double x, double y) {
-		return interp(y - (long) y, noise(x, (long) y * 131072), noise(x + 1, (long) y * 131072));
+
+	public double noise(double x, double y, double scale) {
+		return hnoise(x, y, scale, 0);
 	}
-	
-	public double noise(double x, double y, double z) {
-		return 0;
+
+	private double hnoise(double x, double y, double scale, long off) {
+		double n1 = hnoise(x, scale, (long) (y + off) * 314159);
+		double n2 = hnoise(x, scale, (long) (y + 1 + off) * 314159);
+		return interp(y - (long) y, n1, n2);
 	}
 
 	public WorldGen(World world) {
@@ -79,16 +80,35 @@ public class WorldGen extends Thread {
 			}
 		}
 	}
-	
-	public void generateDim2(int minY, int maxY) {
-		for(int x = 0; x < world.sizeX(); x++) {
-			for(int y = minY; y < maxY; y++) {
-				for(int z = 0; z < world.sizeZ(); z++) {
-					if(Globals.p.noise((float) x / 20, (float) y / 5, (float) z / 20) < 0.25) {
-						world.newBlock(x, y, z, new Eskirite());
+
+	private void makeIsland(int x, int y, int z, int amt) {
+		if (amt > 0 && world.getBlock(x, y, z) instanceof Air) {
+			for (int sx = -1; sx < 2; sx++) {
+				for (int sy = -1; sy < 2; sy++) {
+					for (int sz = -1; sz < 2; sz++) {
+						world.newBlock(x + sx, y + sy, z + sz, new Eskirite());
 					}
 				}
 			}
+			for (int i = 0; i < 2; i++) {
+				int[] dir;
+				if (Math.random() < 0.9) {
+					dir = Globals.dirs[(int) (Math.random() * 4)];
+				} else {
+					dir = Globals.dirs[(int) (Math.random() * 2) + 4];
+				}
+				x += dir[0] * 2;
+				y += dir[1] * 2;
+				z += dir[2] * 2;
+				makeIsland(x, y, z, amt - 1);
+			}
+		}
+	}
+
+	public void generateDim2(int minY, int maxY) {
+		for (int i = 0; i < 200; i++) {
+			makeIsland((int) (Math.random() * world.sizeX()), (int) (Math.random() * (maxY - minY) + minY),
+					(int) (Math.random() * world.sizeZ()), 10);
 		}
 		addPortal(minY, maxY + 1);
 	}
@@ -96,7 +116,7 @@ public class WorldGen extends Thread {
 	public void generateDim1(int minY, int maxY) {
 		for (int x = 0; x < world.sizeX(); x++) {
 			for (int z = 0; z < world.sizeY(); z++) {
-				int height = (int) -(noise((float) x / 10, (float) z / 10) * 20) + maxY - 1;
+				int height = (int) -(noise((float) x / 10, (float) z / 10, world.sizeX() / 10) * 20) + maxY - 1;
 				int y;
 				for (y = maxY - 1; y > height; y--) {
 					if (Math.random() < 0.995) {
