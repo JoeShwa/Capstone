@@ -20,6 +20,7 @@ public class Craftables {
 		recipes.add(new recipes.IntegrityUpgrade());
 		recipes.add(new recipes.EnergyUpgrade());
 		recipes.add(new recipes.InventoryUpgrade());
+		recipes.add(new recipes.Portal());
 	}
 
 	TreeMap<String, Recipe> content;

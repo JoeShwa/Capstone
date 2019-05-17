@@ -5,6 +5,8 @@ import java.util.LinkedList;
 import blocks.Air;
 import blocks.Block;
 import entities.Entity;
+import portals.Pocket;
+import portals.PortalManager;
 
 public class World {
 
@@ -36,7 +38,8 @@ public class World {
 
 	// Adds the entity at the correct chunk
 	public void addEntity(Entity entity) {
-		getEntities(Globals.floor(entity.x / SUBDIV), Globals.floor(entity.y / SUBDIV), Globals.floor(entity.z / SUBDIV)).add(entity);
+		getEntities(Globals.floor(entity.x / SUBDIV), Globals.floor(entity.y / SUBDIV),
+				Globals.floor(entity.z / SUBDIV)).add(entity);
 	}
 
 	// Gets all the entities in all the chunks in the cubic radius around xyz
@@ -58,7 +61,7 @@ public class World {
 		}
 		return out;
 	}
-	
+
 	// Gets the nearby entities in chunks 3x3x3 around the area
 	public LinkedList<Entity> getNearEntities(int x, int y, int z, int rad) {
 		x /= SUBDIV;
@@ -119,7 +122,12 @@ public class World {
 	}
 
 	public Block getBlock(int x, int y, int z) {
-		return blocks[Globals.mod(x, sizeX())][Globals.mod(y, sizeY())][Globals.mod(z, sizeZ())];
+		Pocket pocket = PortalManager.getPocket(x, y, z);
+		if (pocket == null) {
+			return blocks[Globals.mod(x, sizeX())][Globals.mod(y, sizeY())][Globals.mod(z, sizeZ())];
+		} else {
+			return pocket.getBlock(x, y, z);
+		}
 	}
 
 	public Block getBlock(double x, double y, double z) {
@@ -127,8 +135,13 @@ public class World {
 	}
 
 	public void setBlock(int x, int y, int z, Block b) {
+		Pocket pocket = PortalManager.getPocket(x, y, z);
 		Block prev = getBlock(x, y, z);
-		blocks[Globals.mod(x, sizeX())][Globals.mod(y, sizeY())][Globals.mod(z, sizeZ())] = b;
+		if (pocket == null) {
+			blocks[Globals.mod(x, sizeX())][Globals.mod(y, sizeY())][Globals.mod(z, sizeZ())] = b;
+		} else {
+			pocket.setBlock(x, y, z, b);
+		}
 		b.placeEvent(x, y, z, prev);
 	}
 

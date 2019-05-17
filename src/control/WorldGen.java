@@ -81,15 +81,9 @@ public class WorldGen extends Thread {
 		}
 	}
 
-	private void makeIsland(int x, int y, int z, int amt) {
-		if (amt > 0 && world.getBlock(x, y, z) instanceof Air) {
-			for (int sx = -1; sx < 2; sx++) {
-				for (int sy = -1; sy < 2; sy++) {
-					for (int sz = -1; sz < 2; sz++) {
-						world.newBlock(x + sx, y + sy, z + sz, new Eskirite());
-					}
-				}
-			}
+	private void makeIsland(int x, int y, int z, int amt, int minY, int maxY) {
+		if (amt > 0 && world.getBlock(x, y, z) instanceof Air && y < maxY - 10 && y > minY + 10) {
+			world.newBlock(x, y, z, new Eskirite());
 			for (int i = 0; i < 2; i++) {
 				int[] dir;
 				if (Math.random() < 0.9) {
@@ -97,18 +91,36 @@ public class WorldGen extends Thread {
 				} else {
 					dir = Globals.dirs[(int) (Math.random() * 2) + 4];
 				}
-				x += dir[0] * 2;
-				y += dir[1] * 2;
-				z += dir[2] * 2;
-				makeIsland(x, y, z, amt - 1);
+				x += dir[0];
+				y += dir[1];
+				z += dir[2];
+				makeIsland(x, y, z, amt - 1, minY, maxY);
 			}
 		}
 	}
 
 	public void generateDim2(int minY, int maxY) {
-		for (int i = 0; i < 200; i++) {
-			makeIsland((int) (Math.random() * world.sizeX()), (int) (Math.random() * (maxY - minY) + minY),
-					(int) (Math.random() * world.sizeZ()), 10);
+		for (int i = 0; i < 300; i++) {
+			makeIsland((int) (Math.random() * world.sizeX()), (int) (Math.random() * (maxY - minY - 20) + minY + 10),
+					(int) (Math.random() * world.sizeZ()), 10, minY, maxY);
+		}
+		world.updateAllVisibilty();
+		for (int x = 0; x < world.sizeX(); x++) {
+			for (int y = minY; y < maxY; y++) {
+				for (int z = 0; z < world.sizeZ(); z++) {
+					Block b = world.getBlock(x, y, z);
+					if (b instanceof Eskirite && !b.isVisible) {
+						world.newBlock(x, y, z, new Air());
+					}
+				}
+			}
+		}
+		for (int x = 0; x < world.sizeX(); x++) {
+			for (int z = 0; z < world.sizeZ(); z++) {
+				if (noise((double) x / 20, (double) z / 20, world.sizeX() / 20) < 0.5) {
+					world.newBlock(x, maxY - 1, z, new Gravitium());
+				}
+			}
 		}
 		addPortal(minY, maxY + 1);
 	}
