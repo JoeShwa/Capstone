@@ -2,10 +2,10 @@ package recipes;
 
 import items.Item;
 
-public class Empowerer extends Recipe{
+public class Empowerer extends Recipe {
 
 	public Item[] getReqs() {
-		Item[] out = {new items.Electrite(5), new items.Crystal(15), new items.Sludge(5)};
+		Item[] out = { new items.Electrite(5), new items.Crystal(15), new items.Sludge(5) };
 		return out;
 	}
 

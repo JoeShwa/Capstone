@@ -5,7 +5,7 @@ import items.Item;
 import processing.core.PImage;
 
 public class Sludge extends Block {
-	
+
 	public static PImage tex = Globals.p.loadImage("textures/sludge.png");
 
 	public boolean isTrans() {

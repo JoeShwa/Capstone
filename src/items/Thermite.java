@@ -4,11 +4,11 @@ import blocks.Block;
 import processing.core.PImage;
 
 public class Thermite extends Item {
-	
+
 	public Thermite(int amt) {
 		super(amt);
 	}
-	
+
 	public Thermite() {
 		super(0);
 	}

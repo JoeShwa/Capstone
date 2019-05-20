@@ -176,12 +176,12 @@ public class Main extends PApplet {
 			int dist = Math.abs(pos.x - Globals.floor(player.getX())) + Math.abs(pos.y - Globals.floor(player.getY()))
 					+ Math.abs(pos.z - Globals.floor(player.getZ()));
 			Block b = world.getBlock(pos.x, pos.y, pos.z);
-			if (dist <= REND_DIST && b.isVisible && !(b instanceof Air)) {
+			if (dist <= REND_DIST && Globals.world.isVisible(pos.x, pos.y, pos.z) && !(b instanceof Air)) {
 				b.draw(pos.x, pos.y, pos.z);
 			} else {
 				// Remove block from draw list if it shouldn't be drawn
 				iterator.remove();
-				b.isDrawn = false;
+				world.setDrawn(false, pos.x, pos.y, pos.z);
 			}
 		}
 		avg += benchmark();
@@ -217,7 +217,7 @@ public class Main extends PApplet {
 				for (int i = 0; i < 3; i++) {
 					addRenderBlocks(REND_DIST - i); // POTENTIAL LAG CAUSE
 				}
-				background(0);
+				background(75);
 				drawBlocks();
 				drawEntities();
 				popMatrix();
@@ -244,7 +244,7 @@ public class Main extends PApplet {
 	public void showObservation() {
 		noStroke();
 		if (obsTime == -1) {
-			background(0);
+			background(75);
 			obsTime = 0;
 			pushMatrix();
 			doCamera(player.getX(), player.getY(), player.getZ(), player.getYaw(), player.getPitch());
@@ -255,7 +255,8 @@ public class Main extends PApplet {
 				for (int y = -dist; y <= dist; y++) {
 					for (int z = -dist; z <= dist; z++) {
 						Block b = world.getBlock(x + player.getX(), y + player.getY(), z + player.getZ());
-						if (b.isVisible) {
+						if (Globals.world.isVisible(Globals.floor(x + player.getX()), Globals.floor(y + player.getY()),
+								Globals.floor(z + player.getZ()))) {
 							b.draw(x + Globals.floor(player.getX()), y + Globals.floor(player.getY()),
 									z + Globals.floor(player.getZ()));
 						}
@@ -276,7 +277,7 @@ public class Main extends PApplet {
 					int ry = y + Globals.floor(player.getY());
 					int rz = z + Globals.floor(player.getZ());
 					Block b = world.getBlock(rx, ry, rz);
-					if (b.isVisible && !(b instanceof Air)) {
+					if (Globals.world.isVisible(rx, ry, rz) && !(b instanceof Air)) {
 						addRenderBlock(new BlockPos(rx, ry, rz));
 					}
 					z *= -1;
@@ -286,9 +287,9 @@ public class Main extends PApplet {
 	}
 
 	public void addRenderBlock(BlockPos pos) {
-		if (renderList != null && !world.getBlock(pos.x, pos.y, pos.z).isDrawn) {
+		if (renderList != null && !world.isDrawn(pos.x, pos.y, pos.z)) {
 			renderList.add(pos);
-			world.getBlock(pos.x, pos.y, pos.z).isDrawn = true;
+			world.setDrawn(true, pos.x, pos.y, pos.z);
 		}
 	}
 

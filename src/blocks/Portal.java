@@ -5,7 +5,7 @@ import items.Item;
 import processing.core.PImage;
 
 public class Portal extends Block {
-	
+
 	public static final PImage tex = Globals.p.loadImage("textures/portal.png");
 
 	public boolean isTrans() {

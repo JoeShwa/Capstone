@@ -11,7 +11,7 @@ public abstract class Item implements Items {
 	public static void prepItems(PApplet p_) {
 		p = p_;
 	}
-	
+
 	public Item(int amt) {
 		amount = amt;
 	}

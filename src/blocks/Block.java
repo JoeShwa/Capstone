@@ -14,14 +14,13 @@ public abstract class Block implements Blocks {
 	static PApplet p;
 	public static PShape sh;
 	static int[][] dirs = { { 0, 0, -1 }, { 0, 0, 1 }, { 1, 0, 0 }, { -1, 0, 0 }, { 0, -1, 0 }, { 0, 1, 0 } };
-	// Slight lighting differences on different sides of blocks makes them easier to see
-	static short[] lightMap = {-5, -5, 0, 0, 0, -10};
-	public boolean isVisible;
+	// Slight lighting differences on different sides of blocks makes them easier to
+	// see
+	static short[] lightMap = { -5, -5, 0, 0, 0, -10 };
 	static World world;
 	public short light;
 	static final int AMBIENCE = 75;
 	public static final int BIGGEST_LIGHT = 8;
-	public boolean isDrawn;
 
 	public boolean isLight() {
 		return false;
@@ -37,7 +36,6 @@ public abstract class Block implements Blocks {
 
 	public void placeEvent(int x, int y, int z, Block prev) {
 		this.light = (short) Math.max(AMBIENCE, prev.light);
-		isDrawn = prev.isDrawn;
 		update(x, y, z);
 		for (int i = 0; i < dirs.length; i++) {
 			int nx = x + dirs[i][0];
@@ -65,22 +63,22 @@ public abstract class Block implements Blocks {
 	public void update(int x, int y, int z) {
 		updateVisibility(x, y, z);
 	}
-	
+
 	// Updates whether or not the block is visible
 	private void updateVisibility(int x, int y, int z) {
-		isVisible = false;
+		Globals.world.setVisible(false, x, y, z);
 		for (int i = 0; i < 6; i++) {
 			if (world.getBlock(x + dirs[i][0], y + dirs[i][1], z + dirs[i][2]).isTrans()) {
-				isVisible = true;
+				Globals.world.setVisible(true, x, y, z);
 			}
 		}
-		if (isVisible && !isDrawn && Globals.main.gen.phase > World.DIM_COUNT) {
+		if (Globals.world.isVisible(x, y, z) && !Globals.world.isDrawn(x, y, z) && Globals.main.gen.phase > World.DIM_COUNT) {
 			Globals.main.addRenderBlock(new BlockPos(x, y, z));
 		}
 	}
 
 	void draw(PImage tex, int x, int y, int z) {
-		if (isVisible) {
+		if (Globals.world.isVisible(x, y, z)) {
 			int px = (int) Math.signum(Globals.player.getX() - x - 0.5);
 			int py = (int) Math.signum(Globals.player.getY() - y - 0.5);
 			int pz = (int) Math.signum(Globals.player.getZ() - z - 0.5);

@@ -5,13 +5,13 @@ import control.Globals;
 import processing.core.PImage;
 
 public class IntegrityUpgrade extends Tool {
-	
+
 	static PImage tex = Globals.p.loadImage("textures/integrityupgrade.png");
 
 	public IntegrityUpgrade(int amt) {
 		super(amt);
 	}
-	
+
 	public IntegrityUpgrade() {
 		super(0);
 	}
@@ -27,7 +27,7 @@ public class IntegrityUpgrade extends Tool {
 	public Block getBlock() {
 		return null;
 	}
-	
+
 	public void rightClick() {
 		Globals.player.inventory.useItem(getName(), 1);
 		if (amount == 0) {

@@ -4,7 +4,7 @@ import items.Item;
 import processing.core.PImage;
 
 public class Thermite extends Block {
-	
+
 	public static final PImage tex = p.loadImage("textures/thermite.png");
 
 	public boolean isTrans() {

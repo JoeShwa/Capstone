@@ -7,7 +7,7 @@ public class Eskirite extends Item {
 	public Eskirite(int amt) {
 		super(amt);
 	}
-	
+
 	public Eskirite() {
 		super(0);
 	}
@@ -17,8 +17,7 @@ public class Eskirite extends Item {
 	}
 
 	public String getLore() {
-		return "A lightweight but highly resilient substance with a slight glow.\n\n"
-				+ "<purpose>";
+		return "A lightweight but highly resilient substance with a slight glow.\n\n" + "<purpose>";
 	}
 
 	@Override
@@ -30,7 +29,5 @@ public class Eskirite extends Item {
 	public void draw(int x, int y) {
 		draw(blocks.Eskirite.tex, x, y);
 	}
-	
-	
 
 }

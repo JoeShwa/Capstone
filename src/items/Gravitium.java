@@ -7,7 +7,7 @@ public class Gravitium extends Item {
 	public Gravitium(int amt) {
 		super(amt);
 	}
-	
+
 	public Gravitium() {
 		super(0);
 	}
@@ -26,7 +26,7 @@ public class Gravitium extends Item {
 
 	public void draw(int x, int y) {
 		draw(blocks.Gravitium.tex, x, y);
-		
+
 	}
 
 }

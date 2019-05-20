@@ -15,7 +15,8 @@ public class MineEvent extends Event {
 	}
 
 	public void trigger() {
-		if (player.canMine && m.mousePressed && m.mouseButton == Main.LEFT && Globals.gui.guiState == control.GUI.GAME) {
+		if (player.canMine && m.mousePressed && m.mouseButton == Main.LEFT
+				&& Globals.gui.guiState == control.GUI.GAME) {
 			player.leftClick();
 		}
 	}

@@ -5,13 +5,13 @@ import control.Globals;
 import processing.core.PImage;
 
 public class EnergyUpgrade extends Tool {
-	
+
 	static PImage tex = Globals.p.loadImage("textures/energyupgrade.png");
 
 	public EnergyUpgrade(int amt) {
 		super(amt);
 	}
-	
+
 	public EnergyUpgrade() {
 		super(0);
 	}
@@ -27,7 +27,7 @@ public class EnergyUpgrade extends Tool {
 	public Block getBlock() {
 		return null;
 	}
-	
+
 	public void rightClick() {
 		Globals.player.inventory.useItem(getName(), 1);
 		if (amount == 0) {

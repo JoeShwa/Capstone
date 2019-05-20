@@ -63,7 +63,7 @@ public class WorldGen extends Thread {
 				for (int z = 0; z < world.sizeZ(); z++) {
 					Block b = world.getBlock(x, y, z);
 					b.placeEvent(x, y, z, b);
-					b.isDrawn = false;
+					world.setDrawn(false, x, y, z);
 				}
 			}
 		}
@@ -109,7 +109,7 @@ public class WorldGen extends Thread {
 			for (int y = minY; y < maxY; y++) {
 				for (int z = 0; z < world.sizeZ(); z++) {
 					Block b = world.getBlock(x, y, z);
-					if (b instanceof Eskirite && !b.isVisible) {
+					if (b instanceof Eskirite && !Globals.world.isVisible(x, y, z)) {
 						world.newBlock(x, y, z, new Air());
 					}
 				}
@@ -211,7 +211,7 @@ public class WorldGen extends Thread {
 			for (int y = 0; y < world.sizeY() - 1; y++) {
 				for (int z = 0; z < world.sizeZ(); z++) {
 					if (world.getBlock(x, y, z) instanceof Rock) {
-						if (world.getBlock(x, y, z).isVisible) {
+						if (Globals.world.isVisible(x, y, z)) {
 							if (Math.random() < 0.04) {
 								world.newBlock(x, y, z, new StarRock());
 							}

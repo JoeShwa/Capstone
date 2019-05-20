@@ -9,7 +9,7 @@ public class Crystal extends Item {
 	public Crystal(int amt) {
 		super(amt);
 	}
-	
+
 	public Crystal() {
 		super(0);
 	}

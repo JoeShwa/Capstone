@@ -5,7 +5,7 @@ import control.Globals;
 public abstract class LightBlock extends Block {
 
 	public static final double BRIGHT_CONST = (double) 255 / Block.BIGGEST_LIGHT;
-	
+
 	public int getBrightness() {
 		return 0;
 	}
@@ -16,7 +16,7 @@ public abstract class LightBlock extends Block {
 				for (int lz = -brightness; lz < brightness + 1; lz++) {
 					double dist = Globals.sqrt(lx * lx + ly * ly + lz * lz);
 					if (dist < brightness + 1) {
-						//short newLight = (short) (255 - dist * (255 / brightness));
+						// short newLight = (short) (255 - dist * (255 / brightness));
 						short newLight = (short) (brightness * BRIGHT_CONST - dist * (BRIGHT_CONST));
 						world.getBlock(lx + x, ly + y, lz + z).light = (short) Math
 								.max(world.getBlock(lx + x, ly + y, lz + z).light, newLight);
@@ -52,7 +52,7 @@ public abstract class LightBlock extends Block {
 			}
 		}
 	}
-	
+
 	public void placeEvent(int x, int y, int z, Block prev) {
 		super.placeEvent(x, y, z, prev);
 		lightArea(x, y, z, getBrightness());

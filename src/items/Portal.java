@@ -7,7 +7,7 @@ public class Portal extends Item {
 	public Portal(int amt) {
 		super(amt);
 	}
-	
+
 	public Portal() {
 		super(0);
 	}
@@ -26,7 +26,7 @@ public class Portal extends Item {
 
 	public void draw(int x, int y) {
 		draw(blocks.Portal.tex, x, y);
-		
+
 	}
 
 }

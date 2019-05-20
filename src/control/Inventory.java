@@ -5,7 +5,7 @@ import java.util.TreeMap;
 import items.Item;
 
 public class Inventory {
-	
+
 	int size;
 	int maxSize;
 	int types;
@@ -22,7 +22,7 @@ public class Inventory {
 		size = 0;
 		types = 0;
 	}
-	
+
 	public Item getItem(String name) {
 		return content.get(name);
 	}
@@ -40,7 +40,7 @@ public class Inventory {
 	public int getMaxSize() {
 		return maxSize;
 	}
-	
+
 	public void setMaxSize(int size) {
 		this.maxSize = size;
 	}
@@ -57,7 +57,7 @@ public class Inventory {
 
 	public boolean useItem(String name, int amt) {
 		Item item = content.get(name);
-		if(item == null) {
+		if (item == null) {
 			return false;
 		}
 		if (item.amount >= amt) {
@@ -79,7 +79,7 @@ public class Inventory {
 		if (content.containsKey(item.getName())) {
 			content.get(item.getName()).amount += item.amount;
 		} else {
-			if(types == MAX_TYPES) {
+			if (types == MAX_TYPES) {
 				return false;
 			}
 			content.put(item.getName(), item);

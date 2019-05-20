@@ -5,13 +5,13 @@ import control.Globals;
 import processing.core.PImage;
 
 public class InventoryUpgrade extends Tool {
-	
+
 	static PImage tex = Globals.p.loadImage("textures/inventoryupgrade.png");
 
 	public InventoryUpgrade(int amt) {
 		super(amt);
 	}
-	
+
 	public InventoryUpgrade() {
 		super(0);
 	}
@@ -27,7 +27,7 @@ public class InventoryUpgrade extends Tool {
 	public Block getBlock() {
 		return null;
 	}
-	
+
 	public void rightClick() {
 		Globals.player.inventory.useItem(getName(), 1);
 		if (amount == 0) {

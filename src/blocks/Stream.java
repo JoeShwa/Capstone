@@ -2,12 +2,13 @@ package blocks;
 
 import java.util.Random;
 
+import control.Globals;
 import items.Item;
 
 public class Stream extends Block {
 
 	static Random rand = new Random();
-	
+
 	// Amount of frames per block each bit spends
 	static final int FPB = 5;
 
@@ -24,7 +25,7 @@ public class Stream extends Block {
 	}
 
 	public void draw(int x, int y, int z) {
-		if (isVisible) {
+		if (Globals.world.isVisible(x, y, z)) {
 			bitDown(x, y, z, 1);
 			bitUp(x, y, z, 1);
 		}
@@ -42,7 +43,7 @@ public class Stream extends Block {
 			p.popMatrix();
 		}
 	}
-	
+
 	private void bitUp(int x, int y, int z, int amt) {
 		rand.setSeed((p.frameCount / FPB + y) * 31415926 + 1237821);
 		p.fill(255);

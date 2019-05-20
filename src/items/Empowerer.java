@@ -43,6 +43,11 @@ public class Empowerer extends Tool {
 					Globals.player.energy -= 256;
 					crystal.superLight(hit[0], hit[1], hit[2]);
 				}
+			} else if(Globals.player.energy >= 1024 && b instanceof blocks.Portal) {
+				blocks.Portal portal = (blocks.Portal) b;
+				Globals.player.energy -= 1024;
+				portal.breakEvent(hit[0], hit[1], hit[2]);
+				new portals.Pocket(hit[0], hit[1] - 10, hit[2], hit[0], hit[1] - 25, hit[2]);
 			}
 		}
 	}

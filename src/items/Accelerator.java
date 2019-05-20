@@ -14,7 +14,7 @@ public class Accelerator extends Tool {
 	public Accelerator(int amt) {
 		super(amt);
 	}
-	
+
 	public Accelerator() {
 		super(0);
 	}

@@ -4,14 +4,15 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import control.Main;
+import control.Main;
 
 public class EventManager {
 
 	public static Main m;
 	static HashMap<Integer, LinkedList<Event>> events;
 
-	public static void init(Main m) {
-		EventManager.m = m;
+	public static void init(Main main) {
+		EventManager.m = main;
 		events = new HashMap<>();
 	}
 
@@ -35,7 +36,7 @@ public class EventManager {
 		}
 		events.get(time).add(e);
 	}
-	
+
 	// Empty events
 	public static void clear() {
 		events.clear();

@@ -6,12 +6,17 @@ import blocks.Air;
 import blocks.Block;
 import entities.Entity;
 import portals.Pocket;
+import portals.PocketPos;
 import portals.PortalManager;
 
 public class World {
 
 	// Stores block data
 	private Block[][][] blocks;
+	// Stores whether or not each block is being drawn
+	private boolean[][][] drawMap;
+	// Stores whether or not each block is visible
+	private boolean[][][] visibleMap;
 	// Stores entities
 	private LinkedList<Entity>[][][] entities;
 
@@ -25,6 +30,8 @@ public class World {
 			throw new IllegalArgumentException();
 		}
 		blocks = new Block[x][y][z];
+		drawMap = new boolean[x][y][z];
+		visibleMap = new boolean[x][y][z];
 		entities = (LinkedList<Entity>[][][]) new LinkedList<?>[x / SUBDIV][y / SUBDIV][z / SUBDIV];
 		for (x = 0; x < entities.length; x++) {
 			for (y = 0; y < entities[0].length; y++) {
@@ -33,7 +40,22 @@ public class World {
 				}
 			}
 		}
-
+	}
+	
+	public boolean isDrawn(int x, int y, int z) {
+		return drawMap[Globals.mod(x, sizeX())][Globals.mod(y, sizeY())][Globals.mod(z, sizeZ())];
+	}
+	
+	public void setDrawn(boolean drawn, int x, int y, int z) {
+		drawMap[Globals.mod(x, sizeX())][Globals.mod(y, sizeY())][Globals.mod(z, sizeZ())] = drawn;
+	}
+	
+	public boolean isVisible(int x, int y, int z) {
+		return visibleMap[Globals.mod(x, sizeX())][Globals.mod(y, sizeY())][Globals.mod(z, sizeZ())];
+	}
+	
+	public void setVisible(boolean visible, int x, int y, int z) {
+		visibleMap[Globals.mod(x, sizeX())][Globals.mod(y, sizeY())][Globals.mod(z, sizeZ())] = visible;
 	}
 
 	// Adds the entity at the correct chunk
@@ -126,7 +148,8 @@ public class World {
 		if (pocket == null) {
 			return blocks[Globals.mod(x, sizeX())][Globals.mod(y, sizeY())][Globals.mod(z, sizeZ())];
 		} else {
-			return pocket.getBlock(x, y, z);
+			PocketPos pos = PortalManager.getPos(x, y, z);
+			return pocket.getBlock(pos.x, pos.y, pos.z);
 		}
 	}
 
@@ -140,7 +163,8 @@ public class World {
 		if (pocket == null) {
 			blocks[Globals.mod(x, sizeX())][Globals.mod(y, sizeY())][Globals.mod(z, sizeZ())] = b;
 		} else {
-			pocket.setBlock(x, y, z, b);
+			PocketPos pos = PortalManager.getPos(x, y, z);
+			pocket.setBlock(pos.x, pos.y, pos.z, b);
 		}
 		b.placeEvent(x, y, z, prev);
 	}

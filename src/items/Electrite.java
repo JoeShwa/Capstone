@@ -4,11 +4,11 @@ import blocks.Block;
 import processing.core.PImage;
 
 public class Electrite extends Item {
-	
+
 	public Electrite(int amt) {
 		super(amt);
 	}
-	
+
 	public Electrite() {
 		super(0);
 	}

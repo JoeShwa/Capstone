@@ -8,7 +8,7 @@ public class Rock extends Item {
 	public Rock(int amt) {
 		super(amt);
 	}
-	
+
 	public Rock() {
 		super(0);
 	}
@@ -18,7 +18,7 @@ public class Rock extends Item {
 	public String getName() {
 		return "Rock";
 	}
-	
+
 	public String getLore() {
 		return "Mostly just basic metamorphic rock, quite dense due to all the pressure it's been under.\n\n"
 				+ "Can be used as a projectile launched by Thermite.";
